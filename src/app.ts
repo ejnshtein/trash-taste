@@ -38,6 +38,10 @@ const feed: Feed = {
   items: []
 }
 
+loadFeed().then((data) => {
+  feed.items = data.map((el) => el.id)
+})
+
 async function loadFeed(): Promise<YTFeedItem[]> {
   const data = await parser.parseURL(
     `https://www.youtube.com/feeds/videos.xml?channel_id=${process.env.YT_CHANNEL_ID}`
