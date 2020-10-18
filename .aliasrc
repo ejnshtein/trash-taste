@@ -1,0 +1,2 @@
+core=docker-compose -f docker-compose.yml -f docker-compose.core.yml
+dc=docker-compose -f docker-compose.yml

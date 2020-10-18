@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  trashtaste-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge

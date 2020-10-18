@@ -1,0 +1,52 @@
+{
+  "name": "trash-taste",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "github:ejnshtein/trash-taste",
+  "author": "ejnshtein",
+  "license": "MIT",
+  "scripts": {
+    "start": "node ./dist/app.js",
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w",
+    "lint": "eslint ./src --ext .ts",
+    "test": "nodemon test.js",
+    "watch-js": "nodemon -e .yml,js --inspect=0.0.0.0:9222 --watch dist --watch locales --nolazy ./dist/app.js",
+    "develop": "concurrently -i -k -p \"[{name}]\" -n \"Node,TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\""
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
+  "dependencies": {
+    "html-entities": "^1.3.1",
+    "node-schedule": "^1.3.2",
+    "rss-parser": "^3.9.0",
+    "telegraf": "^3.38.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.1",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/eslint": "^7.2.0",
+    "@types/node": "^14.6.4",
+    "@types/node-schedule": "^1.3.0",
+    "@typescript-eslint/eslint-plugin": "^3.9.1",
+    "@typescript-eslint/parser": "^3.9.1",
+    "babel-plugin-add-import-extension": "^1.4.3",
+    "concurrently": "^5.3.0",
+    "eslint": "^7.8.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.3.0",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.0.5",
+    "standard": "^14.3.4",
+    "typescript": "^4.0.3"
+  }
+}

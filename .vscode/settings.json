@@ -1,0 +1,15 @@
+{
+    "cSpell.words": [
+        "ejnshtein",
+        "hentai",
+        "mangadex",
+        "middlewares",
+        "telegraf",
+        "typegoose",
+        "virtuals"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "editor.tabSize": 2
+}
