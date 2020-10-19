@@ -2,7 +2,9 @@ import { Airgram, Auth } from 'airgram'
 
 const airgram = new Airgram({
   apiId: 405329,
-  apiHash: 'e3d4cfb43423bf18292651b707c3a5d6'
+  apiHash: 'e3d4cfb43423bf18292651b707c3a5d6',
+  databaseDirectory: './tdl-db',
+  filesDirectory: './tdl-files'
 })
 
 airgram.use(
@@ -10,6 +12,15 @@ airgram.use(
     token: process.env.TOKEN
   })
 )
+
+airgram.on('updateFile', async ({ update }, next) => {
+  const {
+    remote: { uploadedSize },
+    expectedSize
+  } = update.file
+  const uploadProgress = Math.round((uploadedSize / expectedSize) * 100)
+  console.log(uploadProgress, update.file.local.path)
+})
 
 export interface InputVideo {
   duration: number

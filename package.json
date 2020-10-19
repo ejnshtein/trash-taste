@@ -47,9 +47,15 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "husky": "^4.3.0",
+    "module-alias": "^2.2.2",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
     "standard": "^14.3.4",
     "typescript": "^4.0.3"
+  },
+  "_moduleAliases": {
+    "@lib": "dist/lib",
+    "@type": "dist/type",
+    "@src": "dist"
   }
 }

@@ -1,11 +1,10 @@
-FROM mattiamari/tdlib as build-tdlib
 FROM node:14-alpine
-
-COPY --from=build-tdlib /tdlib/ /usr/local/
 
 WORKDIR /usr/src/app/
 
-ADD . /usr/src/app/
+ADD . .
+
+RUN ls -la
 
 # setup make
 RUN apk add --update make

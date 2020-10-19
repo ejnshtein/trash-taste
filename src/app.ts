@@ -1,12 +1,13 @@
+import 'module-alias/register'
 import * as NodeSchedule from 'node-schedule'
 import * as HtmlEntities from 'html-entities'
 import RssParser from 'rss-parser'
 import { Telegram } from 'telegraf'
 
-import { sleep } from './lib/sleep'
-import { YTFeedItem } from './type/youtube'
+import { sleep } from '@lib/sleep'
+import { YTFeedItem } from '@type/youtube'
 import { processVideo } from './video'
-import { env } from './lib/env'
+import { env } from '@lib/env'
 
 const { AllHtmlEntities } = HtmlEntities
 const { scheduleJob } = NodeSchedule

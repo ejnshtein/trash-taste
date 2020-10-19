@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  trashtaste-bot:
+  app:
     # build:
     #   dockerfile: Dockerfile.dev
     environment:

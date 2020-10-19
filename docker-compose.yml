@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  trashtaste-bot:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,9 +12,18 @@ services:
       - .env
     command: yarn start
     volumes:
-      - .:/usr/src/app
+      - app-data:/usr/src/app/
     networks:
       - default
+    depends_on:
+      - tdlib
+  tdlib:
+    build: deploy/tdlib
+    volumes:
+      - app-data:/usr/local/lib/
+
+volumes:
+  app-data:
 
 networks:
   default:
