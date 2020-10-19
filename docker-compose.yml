@@ -15,12 +15,6 @@ services:
       - app-data:/usr/src/app/
     networks:
       - default
-    depends_on:
-      - tdlib
-  tdlib:
-    build: deploy/tdlib
-    volumes:
-      - app-data:/usr/local/lib/
 
 volumes:
   app-data:
