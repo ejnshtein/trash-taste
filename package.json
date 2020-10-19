@@ -11,7 +11,7 @@
     "watch-ts": "tsc -w",
     "lint": "eslint ./src --ext .ts",
     "test": "nodemon test.js",
-    "watch-js": "nodemon -e .yml,js --inspect=0.0.0.0:9222 --watch dist --watch locales --nolazy ./dist/app.js",
+    "watch-js": "nodemon -e .yml,js --inspect=0.0.0.0:9222 --watch dist --nolazy ./dist/app.js",
     "develop": "concurrently -i -k -p \"[{name}]\" -n \"Node,TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\""
   },
   "husky": {
@@ -20,10 +20,13 @@
     }
   },
   "dependencies": {
+    "@ejnshtein/smol-request": "^1.1.1",
+    "airgram": "^3.1.1",
     "html-entities": "^1.3.1",
     "node-schedule": "^1.3.2",
     "rss-parser": "^3.9.0",
-    "telegraf": "^3.38.0"
+    "telegraf": "^3.38.0",
+    "ytdl-core": "^3.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.11.1",

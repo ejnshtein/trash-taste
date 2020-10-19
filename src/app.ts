@@ -1,10 +1,12 @@
 import * as NodeSchedule from 'node-schedule'
 import * as HtmlEntities from 'html-entities'
-import * as RssParser from 'rss-parser'
+import RssParser from 'rss-parser'
 import { Telegram } from 'telegraf'
 
 import { sleep } from './lib/sleep'
 import { YTFeedItem } from './type/youtube'
+import { processVideo } from './video'
+import { env } from './lib/env'
 
 const { AllHtmlEntities } = HtmlEntities
 const { scheduleJob } = NodeSchedule
@@ -49,20 +51,29 @@ async function loadFeed(): Promise<YTFeedItem[]> {
   return (data.items as unknown) as YTFeedItem[]
 }
 
-scheduleJob('*/5 * * * *', async () => {
+async function checkVideos() {
   const newItems = await loadFeed()
-  const newPosts = newItems
+  const newVideos = newItems
     .filter((el) => !feed.items.includes(el.id))
     .reverse()
 
+  newVideos.push(newItems[0])
+
   feed.items = newItems.map((el) => el.id)
-  if (newPosts.length) {
-    for (const post of newPosts) {
+  if (newVideos.length) {
+    for (const video of newVideos) {
       await sleep(1500)
-      await sendMessage(post)
+      await processVideo(video['yt:videoId'])
+      // console.log(videoInfo)
+      // await sendMessage(post)
     }
   }
-})
+}
+
+if (env('NODE_ENV').is('development')) {
+  checkVideos()
+}
+scheduleJob('*/5 * * * *', checkVideos)
 
 async function sendMessage(post: YTFeedItem) {
   let messageText = `<b>${decode(post.title)

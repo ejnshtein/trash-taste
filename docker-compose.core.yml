@@ -2,11 +2,10 @@ version: '3'
 
 services:
   trashtaste-bot:
-    build:
-      dockerfile: Dockerfile.dev
+    # build:
+    #   dockerfile: Dockerfile.dev
     environment:
       - NODE_ENV=development
     ports:
       - 9222:9222
-    expose:
-      - 9222
+    command: yarn watch-js

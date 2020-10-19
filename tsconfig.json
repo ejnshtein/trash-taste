@@ -6,6 +6,7 @@
     "module": "CommonJS",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "target": "ES5",
     "sourceMap": true,
     "moduleResolution": "Node",
