@@ -19,15 +19,4 @@ RUN mkdir build
 WORKDIR /tmp/_build_tdlib/build/
 RUN export CXXFLAGS=""
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr/local ..
-RUN cmake --build . --target install
-
-
-FROM alpine:3.12.0
-
-COPY --from=builder /usr/local/lib/libtd* /usr/local/lib/
-
-RUN apk add --no-cache \
-    openssl-dev \
-    git \
-    cmake \
-    zlib-dev
+RUN cmake --build . --target install -j $(nproc)
