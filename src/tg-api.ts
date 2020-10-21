@@ -1,10 +1,12 @@
 import { Airgram, Auth } from 'airgram'
+import path from 'path'
 
 const airgram = new Airgram({
   apiId: 405329,
   apiHash: 'e3d4cfb43423bf18292651b707c3a5d6',
   databaseDirectory: './tdl-db',
-  filesDirectory: './tdl-files'
+  filesDirectory: './tdl-files',
+  logVerbosityLevel: 2
 })
 
 airgram.use(
