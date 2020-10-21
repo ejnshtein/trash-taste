@@ -8,4 +8,7 @@ services:
       - NODE_ENV=development
     ports:
       - 9222:9222
+    volumes:
+      - ./dist:/usr/src/app/dist
+      - ./.tmp:/usr/src/app/.tmp
     command: yarn watch-js

@@ -10,20 +10,9 @@ services:
       - NODE_ENV=production
     env_file:
       - .env
-    command: yarn start
-    volumes:
-      - app-data:/usr/src/app/
     networks:
       - default
-    depends_on:
-      - tdlib
-  tdlib:
-    build: deploy/tdlib
-    volumes:
-      - app-data:/usr/local/lib/
-
-volumes:
-  app-data:
+    command: yarn start
 
 networks:
   default:
