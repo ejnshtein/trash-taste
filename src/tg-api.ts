@@ -6,7 +6,7 @@ const airgram = new Airgram({
   apiHash: 'e3d4cfb43423bf18292651b707c3a5d6',
   databaseDirectory: './tdl-db',
   filesDirectory: './tdl-files',
-  logVerbosityLevel: 0,
+  logVerbosityLevel: 4,
   enableStorageOptimizer: true
 })
 
