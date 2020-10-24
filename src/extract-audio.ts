@@ -1,8 +1,5 @@
 import ffmpeg from 'fluent-ffmpeg'
 import fs from 'fs'
-import path from 'path'
-
-// ffmpeg.setFfmpegPath(path.join('usr', 'local', 'bin', 'ffmpeg'))
 
 export const extractAudio = async (
   audioFilePath: string,
