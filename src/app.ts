@@ -1,17 +1,14 @@
 import 'module-alias/register'
+import path from 'path'
 import * as NodeSchedule from 'node-schedule'
-import * as HtmlEntities from 'html-entities'
 import RssParser from 'rss-parser'
-import { Telegram } from 'telegraf'
 
-import { sleep } from '@lib/sleep'
 import { YTFeedItem } from '@type/youtube'
 import { processVideo } from './video'
 import { env } from '@lib/env'
+import { rmdirSafe } from '@lib/rmdir-safe'
 
-const { AllHtmlEntities } = HtmlEntities
 const { scheduleJob } = NodeSchedule
-const { decode } = new AllHtmlEntities()
 const parser = new RssParser({
   customFields: {
     item: [
@@ -31,7 +28,7 @@ const parser = new RssParser({
   }
 })
 
-const telegram = new Telegram(process.env.TOKEN)
+console.log(process.env.NODE_ENV)
 
 interface Feed {
   items: string[]
@@ -41,9 +38,15 @@ const feed: Feed = {
   items: []
 }
 
-loadFeed().then((data) => {
+async function prepareFs(): Promise<void> {
+  const data = await loadFeed()
   feed.items = data.map((el) => el.id)
-})
+  if (env('NODE_ENV').is('development')) {
+    feed.items.shift()
+  }
+  await rmdirSafe(path.resolve('./.tmp'))
+  console.log(path.resolve('./.tmp'), 'removed')
+}
 
 async function loadFeed(): Promise<YTFeedItem[]> {
   const data = await parser.parseURL(
@@ -58,33 +61,35 @@ async function checkVideos() {
     .filter((el) => !feed.items.includes(el.id))
     .reverse()
 
-  newVideos.push(newItems[0])
-
   feed.items = newItems.map((el) => el.id)
   if (newVideos.length) {
     for (const video of newVideos) {
-      await sleep(1500)
-      await processVideo(video['yt:videoId'])
-      // console.log(videoInfo)
-      // await sendMessage(post)
+      try {
+        await processVideo(video['yt:videoId'])
+      } catch (e) {
+        console.log('Processing video error', e)
+      }
     }
   }
 }
 
-if (env('NODE_ENV').is('development')) {
-  checkVideos()
-}
-scheduleJob('*/5 * * * *', checkVideos)
+prepareFs().then(() => {
+  if (env('NODE_ENV').is('development')) {
+    checkVideos()
+  }
 
-async function sendMessage(post: YTFeedItem) {
-  let messageText = `<b>${decode(post.title)
-    .replace(/</gi, '&lt;')
-    .replace(/>/gi, '&gt;')
-    .replace(/&/gi, '&amp;')}</b>\n`
+  scheduleJob('*/5 * * * *', checkVideos)
+})
 
-  messageText += `\nyoutu.be/${post['yt:videoId']}`
+// async function sendMessage(post: YTFeedItem) {
+//   let messageText = `<b>${decode(post.title)
+//     .replace(/</gi, '&lt;')
+//     .replace(/>/gi, '&gt;')
+//     .replace(/&/gi, '&amp;')}</b>\n`
 
-  await telegram.sendMessage(process.env.TELEGRAM_CHANNEL_ID, messageText, {
-    parse_mode: 'HTML'
-  })
-}
+//   messageText += `\nyoutu.be/${post['yt:videoId']}`
+
+//   await telegram.sendMessage(process.env.TELEGRAM_CHANNEL_ID, messageText, {
+//     parse_mode: 'HTML'
+//   })
+// }

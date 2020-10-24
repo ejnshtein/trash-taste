@@ -6,7 +6,8 @@ const airgram = new Airgram({
   apiHash: 'e3d4cfb43423bf18292651b707c3a5d6',
   databaseDirectory: './tdl-db',
   filesDirectory: './tdl-files',
-  logVerbosityLevel: 2
+  logVerbosityLevel: 0,
+  enableStorageOptimizer: true
 })
 
 airgram.use(
@@ -21,18 +22,26 @@ airgram.on('updateFile', async ({ update }, next) => {
     expectedSize
   } = update.file
   const uploadProgress = Math.round((uploadedSize / expectedSize) * 100)
-  console.log(uploadProgress, update.file.local.path)
+  console.log(uploadProgress, path.basename(update.file.local.path))
 })
 
-export interface InputVideo {
+airgram.on('updateMessageSendSucceeded', async (ctx) => {
+  switch (ctx.update.message.content._) {
+    case 'messageVideo': {
+      console.log(ctx.update.message.content.video)
+    }
+  }
+})
+
+export interface InputAudio {
   duration: number
   path: string
-  width: number
-  height: number
+  title: string
+  performer: string
   caption: string
 }
 
-export const sendVideo = async (video: InputVideo): Promise<void> => {
+export const sendAudio = async (audio: InputAudio): Promise<void> => {
   const { response } = await airgram.api.searchPublicChat({
     username: process.env.TELEGRAM_CHANNEL_ID
   })
@@ -40,22 +49,23 @@ export const sendVideo = async (video: InputVideo): Promise<void> => {
     throw new Error('Channel not found')
   }
 
+  console.log('Sending audio', audio)
+
   await airgram.api.sendMessage({
     chatId: response.id,
     inputMessageContent: {
-      _: 'inputMessageVideo',
-      duration: video.duration,
-      video: {
+      _: 'inputMessageAudio',
+      duration: audio.duration,
+      audio: {
         _: 'inputFileLocal',
-        path: video.path
+        path: audio.path
       },
-      supportsStreaming: true,
+      title: audio.title,
       caption: {
         _: 'formattedText',
-        text: video.caption
+        text: audio.caption
       },
-      height: video.height,
-      width: video.width
+      performer: audio.performer
     }
   })
 }

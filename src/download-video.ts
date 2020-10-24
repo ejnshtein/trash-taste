@@ -5,8 +5,10 @@ export const downloadFile = async (
   info: ytdl.videoInfo,
   video: ytdl.videoFormat,
   filePath: string
-): Promise<string> => {
+): Promise<void> => {
   const writeStream = fs.createWriteStream(filePath)
+
+  console.log('Downloading video', info.videoDetails.title)
 
   return new Promise((resolve, reject) => {
     const stream = ytdl.downloadFromInfo(info, {
@@ -16,7 +18,7 @@ export const downloadFile = async (
     stream.pipe(writeStream)
     stream.once('error', reject)
     stream.once('finish', () => {
-      resolve(filePath)
+      resolve()
     })
   })
 }

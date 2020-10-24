@@ -2,13 +2,10 @@ version: '3'
 
 services:
   app:
-    # build:
-    #   dockerfile: Dockerfile.dev
     environment:
       - NODE_ENV=development
     ports:
       - 9222:9222
     volumes:
       - ./dist:/usr/src/app/dist
-      - ./.tmp:/usr/src/app/.tmp
     command: yarn watch-js
