@@ -1,5 +1,8 @@
 import { Airgram, Auth } from 'airgram'
+import { createStore } from 'effector'
 import path from 'path'
+
+const tdlibAbsolutePath = path.join('/usr', 'local', 'lib', 'libtdjson.so')
 
 const airgram = new Airgram({
   apiId: parseInt(process.env.TG_API_ID),
@@ -7,7 +10,8 @@ const airgram = new Airgram({
   databaseDirectory: './tdl-db',
   filesDirectory: './tdl-files',
   logVerbosityLevel: 0,
-  enableStorageOptimizer: true
+  enableStorageOptimizer: true,
+  command: tdlibAbsolutePath
 })
 
 airgram.use(
@@ -15,6 +19,14 @@ airgram.use(
     token: process.env.TOKEN
   })
 )
+
+export interface UploadingFile {
+  name: string
+  uploaded: number
+  total: number
+}
+
+export const $uploading = createStore([])
 
 airgram.on('updateFile', async ({ update }, next) => {
   const {

@@ -1,5 +1,5 @@
 FROM alfg/ffmpeg:latest as ffmpeg
-FROM ejnshtein/node-tdlib:14-1.6.0-alpine-3.12.0
+FROM ejnshtein/node-tdlib:14-1.6.0-alpine-3.12.0-1.0
 
 WORKDIR /usr/src/app/
 
