@@ -9,10 +9,9 @@ import { extractAudio } from './extract-audio'
 export const processVideo = async (videoId: string): Promise<void> => {
   const info = await ytdl.getInfo(`https://www.youtube.com/watch?v=${videoId}`)
 
-  const audio = info.formats.find(
-    (format) =>
-      format.container === 'mp4' && format.hasAudio && !format.hasVideo
-  )
+  const audio = info.formats
+    .filter((f) => f.hasAudio && f.container === 'mp4')
+    .sort((a, b) => b.audioBitrate - a.audioBitrate)[0]
 
   const filePath = path.resolve(
     './.tmp',

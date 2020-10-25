@@ -12,6 +12,7 @@
       "protocol":"auto",
       "port": 9222,
       "restart": true,
+      "timeout": 2000,
       "localRoot": "${workspaceFolder}/dist",
       "remoteRoot": "/usr/src/app/dist",
       "outFiles": [

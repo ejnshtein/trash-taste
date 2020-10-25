@@ -7,8 +7,7 @@ export const extractAudio = async (
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     const outputStream = fs.createWriteStream(audioFilePath)
-    ffmpeg()
-      .input(filePath)
+    ffmpeg(filePath)
       .output(outputStream)
       .once('end', () => {
         resolve()
