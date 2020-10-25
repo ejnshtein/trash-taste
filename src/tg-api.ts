@@ -2,11 +2,11 @@ import { Airgram, Auth } from 'airgram'
 import path from 'path'
 
 const airgram = new Airgram({
-  apiId: 405329,
-  apiHash: 'e3d4cfb43423bf18292651b707c3a5d6',
+  apiId: parseInt(process.env.TG_API_ID),
+  apiHash: process.env.TG_API_HASH,
   databaseDirectory: './tdl-db',
   filesDirectory: './tdl-files',
-  logVerbosityLevel: 4,
+  logVerbosityLevel: 0,
   enableStorageOptimizer: true
 })
 

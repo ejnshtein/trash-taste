@@ -12,8 +12,6 @@ services:
       - .env
     networks:
       - default
-    volumes:
-      - ./.tmp:/usr/src/app/.tmp
     command: yarn start
 
 networks:
