@@ -1,5 +1,12 @@
-import { Airgram, Auth } from 'airgram'
-import { createStore } from 'effector'
+import {
+  Airgram,
+  Auth,
+  UpdateContext,
+  UpdateFile,
+  UpdateMessageSendFailed,
+  UpdateMessageSendSucceeded
+} from 'airgram'
+import { createEffect, createStore } from 'effector'
 import path from 'path'
 
 const tdlibAbsolutePath = path.join('/usr', 'local', 'lib', 'libtdjson.so')
@@ -28,22 +35,59 @@ export interface UploadingFile {
 
 export const $uploading = createStore([])
 
-airgram.on('updateFile', async ({ update }, next) => {
-  const {
-    remote: { uploadedSize },
-    expectedSize
-  } = update.file
-  const uploadProgress = Math.round((uploadedSize / expectedSize) * 100)
-  console.log(uploadProgress, path.basename(update.file.local.path))
-})
+const onUpdateFile = createEffect(
+  async ({ update }: UpdateContext<UpdateFile>) => {
+    const {
+      remote: { uploadedSize },
+      expectedSize
+    } = update.file
+    const uploadProgress = Math.round((uploadedSize / expectedSize) * 100)
+    console.log(uploadProgress, path.basename(update.file.local.path))
+  }
+)
+airgram.on('updateFile', onUpdateFile)
 
-airgram.on('updateMessageSendSucceeded', async (ctx) => {
-  switch (ctx.update.message.content._) {
-    case 'messageVideo': {
-      console.log(ctx.update.message.content.video)
+const onUpdateMessageSendSucceeded = createEffect(
+  async ({ update }: UpdateContext<UpdateMessageSendSucceeded>) => {
+    const { content } = update.message
+    switch (content._) {
+      case 'messageVideo': {
+        return {
+          _: 'video',
+          video: content.video
+        }
+      }
+      case 'messageAudio': {
+        return {
+          _: 'audio',
+          audio: content.audio
+        }
+      }
     }
   }
-})
+)
+airgram.on('updateMessageSendSucceeded', onUpdateMessageSendSucceeded)
+
+const onUpdateMessageSendFailed = createEffect(
+  async ({ update }: UpdateContext<UpdateMessageSendFailed>) => {
+    const { content } = update.message
+    switch (content._) {
+      case 'messageVideo': {
+        return {
+          _: 'video',
+          video: content.video
+        }
+      }
+      case 'messageAudio': {
+        return {
+          _: 'audio',
+          audio: content.audio
+        }
+      }
+    }
+  }
+)
+airgram.on('updateMessageSendFailed', onUpdateMessageSendFailed)
 
 export interface InputAudio {
   duration: number
