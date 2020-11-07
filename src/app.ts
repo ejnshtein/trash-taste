@@ -4,9 +4,11 @@ import * as NodeSchedule from 'node-schedule'
 import RssParser from 'rss-parser'
 
 import { YTFeedItem } from '@type/youtube'
-import { processVideo } from './video'
+// import { processVideo } from '@src/video'
+import { processVideo } from '@src/process-video'
 import { env } from '@lib/env'
 import { rmdirSafe } from '@lib/rmdir-safe'
+import { airgram, getChatId, parseTextEntities } from '@src/tg-api'
 
 const { scheduleJob } = NodeSchedule
 const parser = new RssParser({
@@ -64,11 +66,8 @@ async function checkVideos() {
   feed.items = newItems.map((el) => el.id)
   if (newVideos.length) {
     for (const video of newVideos) {
-      try {
-        await processVideo(video['yt:videoId'])
-      } catch (e) {
-        console.log('Processing video error', e)
-      }
+      await sendMessage(video)
+      await processVideo(video['yt:videoId'])
     }
   }
 }
@@ -81,15 +80,27 @@ prepareFs().then(() => {
   scheduleJob('*/5 * * * *', checkVideos)
 })
 
-// async function sendMessage(post: YTFeedItem) {
-//   let messageText = `<b>${decode(post.title)
-//     .replace(/</gi, '&lt;')
-//     .replace(/>/gi, '&gt;')
-//     .replace(/&/gi, '&amp;')}</b>\n`
+async function sendMessage(post: YTFeedItem) {
+  let messageText = `<b>${post.title
+    .replace(/</gi, '&lt;')
+    .replace(/>/gi, '&gt;')
+    .replace(/&/gi, '&amp;')}</b>\n`
 
-//   messageText += `\nyoutu.be/${post['yt:videoId']}`
+  messageText += `\nyoutu.be/${post['yt:videoId']}`
 
-//   await telegram.sendMessage(process.env.TELEGRAM_CHANNEL_ID, messageText, {
-//     parse_mode: 'HTML'
-//   })
-// }
+  const chatId = await getChatId()
+
+  const { text, entities } = await parseTextEntities(messageText)
+
+  await airgram.api.sendMessage({
+    chatId,
+    inputMessageContent: {
+      _: 'inputMessageText',
+      text: {
+        _: 'formattedText',
+        text,
+        entities
+      }
+    }
+  })
+}
