@@ -23,8 +23,8 @@ async function checkVideos() {
     }
   }
 }
-// eslint-disable-next-line no-void
-void async function main(): Promise<void> {
+
+async function main(): Promise<void> {
   const feedItems = await loadFeed()
   setItems(feedItems.map((item) => item['yt:videoId']))
 
@@ -35,3 +35,5 @@ void async function main(): Promise<void> {
 
   scheduleJob('*/5 * * * *', checkVideos)
 }
+
+main()

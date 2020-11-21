@@ -35,7 +35,6 @@ async function checkVideos() {
   }
 }
 
-// eslint-disable-next-line no-void
 async function main(): Promise<void> {
   const feedItems = await loadFeed()
   if (env('NODE_ENV').is('development')) {
