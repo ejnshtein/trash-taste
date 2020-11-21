@@ -11,4 +11,8 @@ services:
       - ./package.json:/usr/src/app/package.json
       - ./yarn.lock:/usr/src/app/yarn.lock
       - ./.tmp:/usr/src/app/.tmp/
+      - ./forever.json:/usr/src/app/forever.json
     command: yarn watch-js
+  rss:
+    environment:
+      - NODE_ENV=development

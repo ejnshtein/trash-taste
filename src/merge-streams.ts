@@ -12,15 +12,14 @@ export const mergeStreams = async ({
   result
 }: MergeStreamsArguments): Promise<void> => {
   return new Promise((resolve, reject) => {
+    console.log('Encoding video')
     ffmpeg()
-      .input(video)
-      .inputFormat('mp4')
-      .input(audio)
-      .inputFormat('mp3')
-      .once('end', () => {
-        resolve()
-      })
+      .addInput(video)
+      .addInput(audio)
+      .addOptions(['-c:v copy', '-c:a aac', '-map 0:v:0', '-map 1:a:0'])
+      .once('end', resolve)
       .once('error', reject)
-      .mergeToFile(result)
+      .output(result)
+      .run()
   })
 }

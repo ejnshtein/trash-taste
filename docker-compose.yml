@@ -10,11 +10,21 @@ services:
       - NODE_ENV=production
     env_file:
       - .env
-    volumes:
-      - ./logs:/usr/src/app/logs
     networks:
       - default
     command: yarn start
+  rss:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    networks:
+      - default
+    command: yarn start:rss
 
 networks:
   default:

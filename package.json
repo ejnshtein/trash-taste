@@ -1,17 +1,19 @@
 {
   "name": "trash-taste",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "app.js",
   "repository": "github:ejnshtein/trash-taste",
   "author": "ejnshtein",
   "license": "MIT",
   "scripts": {
     "start": "node ./dist/app.js",
+    "start:rss":"node ./dist/rss.js",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
+    "test": "ts-node ./test.ts",
     "lint": "eslint ./src --ext .ts",
-    "test": "nodemon test.js",
-    "watch-js": "forever -c 'node --inspect=0.0.0.0:9222 --nolazy' --watchDirectory dist/ ./dist/app.js"
+    "lint:fix": "eslint ./src --ext .ts --fix",
+    "watch-js": "forever ./forever.json"
   },
   "husky": {
     "hooks": {
@@ -51,6 +53,7 @@
     "module-alias": "^2.2.2",
     "prettier": "^2.1.2",
     "standard": "^14.3.4",
+    "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   },
   "_moduleAliases": {

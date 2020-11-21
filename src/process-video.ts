@@ -1,20 +1,12 @@
-import 'module-alias/register'
-import * as ytdl from 'ytdl-core'
 import path from 'path'
+import * as ytdl from 'ytdl-core'
 import { mkdirSafe } from '@lib/mkdir-safe'
-import { downloadVideo } from '@src/download-video'
+import { downloadVideo } from '@lib/download-video'
 import { downloadFile } from '@lib/download-file'
-import {
-  airgram,
-  getChatId,
-  parseTextEntities,
-  sendAudio,
-  sendVideo
-} from '@src/tg-api'
-import { extractAudio } from '@src/extract-audio'
-import { rmdirSafe } from './lib/rmdir-safe'
-import { $items, addItem, editItem, removeItem } from './store'
-import { mergeStreams } from './merge-streams'
+import { rmdirSafe } from '@lib/rmdir-safe'
+import { sendAudio, sendVideo } from '@src/tg-api'
+import { $items, addItem, editItem, removeItem } from '@src/store'
+import { mergeStreams } from '@src/merge-streams'
 
 export const processVideo = async (videoId: string): Promise<void> => {
   const info = await ytdl.getInfo(`https://www.youtube.com/watch?v=${videoId}`)
@@ -42,8 +34,7 @@ export const processVideo = async (videoId: string): Promise<void> => {
 
   addItem({
     id: videoId,
-    sendFilesToTg: false,
-    sendMessageToTg: false
+    sendFilesToTg: false
   })
 
   const item = $items.getState().find((e) => e.id === videoId)
@@ -71,15 +62,6 @@ export const processVideo = async (videoId: string): Promise<void> => {
   const destVideoFile = path.join(videoDirPath, `result-video.mp4`)
 
   await mkdirSafe(videoDirPath)
-
-  if (!item.sendMessageToTg) {
-    try {
-      await sendMessage(info)
-      editItem({ id: videoId, sendMessageToTg: true })
-    } catch (e) {
-      editItem({ id: videoId, sendMessageToTg: false })
-    }
-  }
 
   if (item.sendFilesToTg) {
     editItem({ id: videoId, processing: false })
@@ -142,29 +124,4 @@ export const processVideo = async (videoId: string): Promise<void> => {
   console.log(`${info.videoDetails.title} processed!`)
 
   editItem({ id: videoId, processing: false })
-}
-
-async function sendMessage(video: ytdl.videoInfo) {
-  let messageText = `<b>${video.videoDetails.title
-    .replace(/</gi, '&lt;')
-    .replace(/>/gi, '&gt;')
-    .replace(/&/gi, '&amp;')}</b>\n`
-
-  messageText += `\nyoutu.be/${video.videoDetails.videoId}`
-
-  const chatId = await getChatId()
-
-  const { text, entities } = await parseTextEntities(messageText)
-
-  await airgram.api.sendMessage({
-    chatId,
-    inputMessageContent: {
-      _: 'inputMessageText',
-      text: {
-        _: 'formattedText',
-        text,
-        entities
-      }
-    }
-  })
 }

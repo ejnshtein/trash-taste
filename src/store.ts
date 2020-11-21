@@ -1,12 +1,11 @@
 import { createEvent, createStore } from 'effector'
+import { env } from './lib/env'
 
 export interface PodcastItem {
   /**
    * Podcast youtube id
    */
   id: string
-
-  sendMessageToTg?: boolean
 
   sendFilesToTg?: boolean
 
@@ -49,3 +48,16 @@ export const $items = createStore<PodcastItem[]>([])
 
     return [...items]
   })
+export const $processingPodcast = $items.map((items) =>
+  items.find((item) => item.processing)
+)
+
+if (env('NODE_ENV').is('development')) {
+  const sub = $items.watch((items) => {
+    if (items.length > 0) {
+      sub()
+      console.log(items)
+    }
+  })
+  $processingPodcast.watch(console.log)
+}

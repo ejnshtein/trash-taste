@@ -1,63 +1,13 @@
 import 'module-alias/register'
 import path from 'path'
-import * as NodeSchedule from 'node-schedule'
-import RssParser from 'rss-parser'
+import { scheduleJob } from 'node-schedule'
 
 import { YTFeedItem } from '@type/youtube'
 import { processVideo } from '@src/process-video'
 import { env } from '@lib/env'
 import { rmdirSafe } from '@lib/rmdir-safe'
 import { $items, removeItem, setItems } from './store'
-
-const { scheduleJob } = NodeSchedule
-const parser = new RssParser({
-  customFields: {
-    item: [
-      'description',
-      'guid',
-      'yt:videoId',
-      'yt:channelId',
-      'media:group',
-      'media:title',
-      'media:content',
-      'media:thumbnail',
-      'media:description',
-      'media:community',
-      'media:starRating',
-      'media:statistics'
-    ]
-  }
-})
-
-async function prepareFs(): Promise<void> {
-  const feedItems = await loadFeed()
-  if (env('NODE_ENV').is('development')) {
-    setItems(
-      feedItems.slice(1).map((item) => ({
-        id: item['yt:videoId'],
-        sendFilesToTg: true,
-        sendMessageToTg: true
-      }))
-    )
-  } else {
-    setItems(
-      feedItems.map((item) => ({
-        id: item['yt:videoId'],
-        sendFilesToTg: true,
-        sendMessageToTg: true
-      }))
-    )
-  }
-  await rmdirSafe(path.resolve('./.tmp'))
-  console.log(path.resolve('./.tmp'), 'removed')
-}
-
-async function loadFeed(): Promise<YTFeedItem[]> {
-  const data = await parser.parseURL(
-    `https://www.youtube.com/feeds/videos.xml?channel_id=${process.env.YT_CHANNEL_ID}`
-  )
-  return (data.items as unknown) as YTFeedItem[]
-}
+import { loadFeed } from './lib/rss-parser'
 
 async function checkVideos() {
   const items = $items.getState()
@@ -67,7 +17,7 @@ async function checkVideos() {
     (item) =>
       !items.some((e) => e.id === item['yt:videoId']) ||
       !items.find((e) => e.id === item['yt:videoId']).sendFilesToTg ||
-      !items.find((e) => e.id === item['yt:videoId']).sendMessageToTg
+      !items.find((e) => e.id === item['yt:videoId']).processing
   )
 
   if (newItems.length > 0) {
@@ -85,11 +35,37 @@ async function checkVideos() {
   }
 }
 
-prepareFs().then(() => {
+// eslint-disable-next-line no-void
+async function main(): Promise<void> {
+  const feedItems = await loadFeed()
+  if (env('NODE_ENV').is('development')) {
+    setItems(
+      feedItems.slice(1).map((item) => ({
+        id: item['yt:videoId'],
+        sendFilesToTg: true,
+        sendMessageToTg: true,
+        processing: false
+      }))
+    )
+  } else {
+    setItems(
+      feedItems.map((item) => ({
+        id: item['yt:videoId'],
+        sendFilesToTg: true,
+        sendMessageToTg: true,
+        processing: false
+      }))
+    )
+  }
+  await rmdirSafe(path.resolve('./.tmp'))
+  console.log(path.resolve('./.tmp'), 'removed')
+
   if (env('NODE_ENV').is('development')) {
     checkVideos()
     return
   }
 
   scheduleJob('*/5 * * * *', checkVideos)
-})
+}
+
+main()
