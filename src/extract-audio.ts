@@ -2,10 +2,10 @@ import ffmpeg from 'fluent-ffmpeg'
 
 export const extractAudio = async (
   audioFilePath: string,
-  filePath: string
+  videoFilePath: string
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    ffmpeg(filePath)
+    ffmpeg(videoFilePath)
       .once('end', () => {
         resolve()
       })

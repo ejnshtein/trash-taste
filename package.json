@@ -19,8 +19,6 @@
     }
   },
   "dependencies": {
-    "@ejnshtein/smol-request": "^1.1.5",
-    "@types/fluent-ffmpeg": "^2.1.16",
     "airgram": "^3.1.1",
     "effector": "^21.5.0",
     "fluent-ffmpeg": "^2.1.2",
@@ -28,12 +26,14 @@
     "html-entities": "^1.3.1",
     "node-schedule": "^1.3.2",
     "rss-parser": "^3.9.0",
-    "ytdl-core": "^3.4.1"
+    "smol-request": "2.1.0",
+    "ytdl-core": "^4.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.11.1",
     "@babel/preset-typescript": "^7.10.4",
     "@types/eslint": "^7.2.0",
+    "@types/fluent-ffmpeg": "^2.1.16",
     "@types/node": "^14.6.4",
     "@types/node-schedule": "^1.3.0",
     "@typescript-eslint/eslint-plugin": "^3.9.1",
@@ -54,8 +54,8 @@
     "typescript": "^4.0.3"
   },
   "_moduleAliases": {
+    "@src": "dist",
     "@lib": "dist/lib",
-    "@type": "dist/type",
-    "@src": "dist"
+    "@type": "dist/type"
   }
 }

@@ -209,6 +209,7 @@ export interface InputAudio extends InputFile {
 export interface InputVideo extends InputFile {
   width: number
   height: number
+  thumb?: string
 }
 
 export const sendAudio = async (
@@ -287,7 +288,18 @@ export const sendVideo = async (
         },
         supportsStreaming: true,
         width: video.width,
-        height: video.height
+        height: video.height,
+        ...(video.thumb
+          ? {
+              thumbnail: {
+                _: 'inputThumbnail',
+                thumbnail: {
+                  _: 'inputFileLocal',
+                  path: video.thumb
+                }
+              }
+            }
+          : {})
       }
     })
   })

@@ -14,15 +14,9 @@ export const rmdirSafe = async (dirPath: string): Promise<boolean> => {
   })
   for (const file of files) {
     const filePath = path.join(dirPath, file.name)
-    switch (true) {
-      case file.isFile(): {
-        await fs.promises.unlink(filePath)
-        return true
-      }
-      case file.isDirectory(): {
-        await rmdirSafe(filePath)
-      }
-    }
+    await fs.promises.rm(filePath, {
+      recursive: true
+    })
   }
   return true
 }

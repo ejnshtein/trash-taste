@@ -4,11 +4,10 @@ import * as NodeSchedule from 'node-schedule'
 import RssParser from 'rss-parser'
 
 import { YTFeedItem } from '@type/youtube'
-// import { processVideo } from '@src/video'
 import { processVideo } from '@src/process-video'
 import { env } from '@lib/env'
 import { rmdirSafe } from '@lib/rmdir-safe'
-import { airgram, getChatId, parseTextEntities } from '@src/tg-api'
+import { $items, removeItem, setItems } from './store'
 
 const { scheduleJob } = NodeSchedule
 const parser = new RssParser({
@@ -30,21 +29,24 @@ const parser = new RssParser({
   }
 })
 
-console.log(process.env.NODE_ENV)
-
-interface Feed {
-  items: string[]
-}
-
-const feed: Feed = {
-  items: []
-}
-
 async function prepareFs(): Promise<void> {
-  const data = await loadFeed()
-  feed.items = data.map((el) => el.id)
+  const feedItems = await loadFeed()
   if (env('NODE_ENV').is('development')) {
-    feed.items.shift()
+    setItems(
+      feedItems.slice(1).map((item) => ({
+        id: item['yt:videoId'],
+        sendFilesToTg: true,
+        sendMessageToTg: true
+      }))
+    )
+  } else {
+    setItems(
+      feedItems.map((item) => ({
+        id: item['yt:videoId'],
+        sendFilesToTg: true,
+        sendMessageToTg: true
+      }))
+    )
   }
   await rmdirSafe(path.resolve('./.tmp'))
   console.log(path.resolve('./.tmp'), 'removed')
@@ -58,49 +60,36 @@ async function loadFeed(): Promise<YTFeedItem[]> {
 }
 
 async function checkVideos() {
-  const newItems = await loadFeed()
-  const newVideos = newItems
-    .filter((el) => !feed.items.includes(el.id))
-    .reverse()
+  const items = $items.getState()
+  const feedItems = await loadFeed()
 
-  feed.items = newItems.map((el) => el.id)
-  if (newVideos.length) {
-    for (const video of newVideos) {
-      await sendMessage(video)
-      await processVideo(video['yt:videoId'])
+  const newItems: YTFeedItem[] = feedItems.filter(
+    (item) =>
+      !items.some((e) => e.id === item['yt:videoId']) ||
+      !items.find((e) => e.id === item['yt:videoId']).sendFilesToTg ||
+      !items.find((e) => e.id === item['yt:videoId']).sendMessageToTg
+  )
+
+  if (newItems.length > 0) {
+    for (const item of newItems) {
+      await processVideo(item['yt:videoId'])
     }
+  }
+
+  const outdatedItems = items.filter(
+    (e) => !feedItems.some((i) => i.id === e.id)
+  )
+
+  if (outdatedItems) {
+    removeItem(outdatedItems.map((e) => e.id))
   }
 }
 
 prepareFs().then(() => {
   if (env('NODE_ENV').is('development')) {
     checkVideos()
+    return
   }
 
   scheduleJob('*/5 * * * *', checkVideos)
 })
-
-async function sendMessage(post: YTFeedItem) {
-  let messageText = `<b>${post.title
-    .replace(/</gi, '&lt;')
-    .replace(/>/gi, '&gt;')
-    .replace(/&/gi, '&amp;')}</b>\n`
-
-  messageText += `\nyoutu.be/${post['yt:videoId']}`
-
-  const chatId = await getChatId()
-
-  const { text, entities } = await parseTextEntities(messageText)
-
-  await airgram.api.sendMessage({
-    chatId,
-    inputMessageContent: {
-      _: 'inputMessageText',
-      text: {
-        _: 'formattedText',
-        text,
-        entities
-      }
-    }
-  })
-}
