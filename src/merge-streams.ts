@@ -16,10 +16,10 @@ export const mergeStreams = async ({
     ffmpeg()
       .addInput(video)
       .addInput(audio)
-      .addOptions(['-c:v copy', '-c:a aac', '-map 0:v:0', '-map 1:a:0'])
+      .outputOptions(['-c:v copy', '-c:a aac', '-map 0:v:0', '-map 1:a:0'])
+      .output(result)
       .once('end', resolve)
       .once('error', reject)
-      .output(result)
       .run()
   })
 }
