@@ -64,7 +64,7 @@ async function main(): Promise<void> {
     return
   }
 
-  scheduleJob('*/5 * * * *', checkVideos)
+  scheduleJob('*/10 * * * *', checkVideos)
 }
 
 main()
