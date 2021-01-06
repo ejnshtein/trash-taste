@@ -3,3 +3,4 @@ dist
 *.env
 .tmp
 data
+.DS_Store
