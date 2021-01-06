@@ -13,6 +13,10 @@ async function checkVideos() {
   const items = $items.getState()
   const feedItems = await loadFeed()
 
+  if (feedItems.length === 0) {
+    return
+  }
+
   const newItems: YTFeedItem[] = feedItems.filter(
     (item) =>
       !items.some((e) => e.id === item['yt:videoId']) ||
