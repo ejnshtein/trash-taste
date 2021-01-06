@@ -1,4 +1,4 @@
-FROM ejnshtein/tdlib:1.6.0
+FROM ejnshtein/tdlib:1.7.0
 
 # https://github.com/nodejs/docker-node/blob/ad676318f09f9dee821ac6704340000d75fe31bc/15/alpine3.12/Dockerfile
 ENV NODE_VERSION 15.5.1
