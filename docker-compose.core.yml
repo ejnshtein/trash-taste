@@ -13,6 +13,6 @@ services:
       - ./.tmp:/usr/src/app/.tmp/
       - ./forever.json:/usr/src/app/forever.json
     command: yarn watch-js
-  rss:
-    environment:
-      - NODE_ENV=development
+  # rss:
+  #   environment:
+  #     - NODE_ENV=development

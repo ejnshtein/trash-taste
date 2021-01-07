@@ -13,7 +13,7 @@ export interface PodcastItem {
 }
 
 export const setItems = createEvent<PodcastItem[]>()
-export const addItem = createEvent<PodcastItem>()
+export const addItem = createEvent<PodcastItem | PodcastItem[]>()
 export const removeItem = createEvent<string | string[]>()
 export const editItem = createEvent<PodcastItem>()
 export const $items = createStore<PodcastItem[]>([])
@@ -23,10 +23,15 @@ export const $items = createStore<PodcastItem[]>([])
     }
     return items.filter(({ id }) => !item.some((i) => i === id))
   })
-  .on(addItem, (items, item) => {
-    if (!items.some((e) => e.id === item.id)) {
-      items.push(item)
+  .on(addItem, (items, payload) => {
+    if (!Array.isArray(payload)) {
+      payload = [payload]
     }
+    payload.forEach((item) => {
+      if (!items.some((e) => e.id === item.id)) {
+        items.push(item)
+      }
+    })
 
     return [...items]
   })

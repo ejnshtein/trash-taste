@@ -3,11 +3,13 @@ import path from 'path'
 import { scheduleJob } from 'node-schedule'
 
 import { YTFeedItem } from '@type/youtube'
-import { processVideo } from '@src/process-video'
 import { env } from '@lib/env'
 import { rmdirSafe } from '@lib/rmdir-safe'
-import { $items, removeItem, setItems } from './store'
-import { loadFeed } from './lib/rss-parser'
+import { loadFeed } from '@lib/rss-parser'
+import { sendMessage } from '@lib/send-message'
+
+import { processVideo } from '@src/process-video'
+import { $items, addItem, removeItem, setItems } from '@src/store'
 
 async function checkVideos() {
   const items = $items.getState()
@@ -24,22 +26,25 @@ async function checkVideos() {
       !items.find((e) => e.id === item['yt:videoId']).processing
   )
 
-  if (newItems.length > 0) {
-    for (const item of newItems) {
-      await processVideo(item['yt:videoId'])
-    }
-  }
-
   const outdatedItems = items.filter(
     (e) => !feedItems.some((i) => i.id === e.id)
   )
 
-  if (outdatedItems) {
+  if (outdatedItems.length > 0) {
     removeItem(outdatedItems.map((e) => e.id))
+  }
+
+  if (newItems.length > 0) {
+    addItem(newItems)
+    for (const item of newItems) {
+      await sendMessage({ title: item.title, videoId: item['yt:videoId'] })
+      await processVideo(item['yt:videoId'])
+    }
   }
 }
 
-async function main(): Promise<void> {
+// eslint-disable-next-line no-void,prettier/prettier
+void async function main(): Promise<void> {
   const feedItems = await loadFeed()
   if (env('NODE_ENV').is('development')) {
     setItems(
@@ -69,6 +74,5 @@ async function main(): Promise<void> {
   }
 
   scheduleJob('*/10 * * * *', checkVideos)
-}
-
-main()
+  // eslint-disable-next-line prettier/prettier
+}()

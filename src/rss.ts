@@ -1,3 +1,4 @@
+// legacy
 import 'module-alias/register'
 import { loadFeed } from '@lib/rss-parser'
 import { env } from '@lib/env'

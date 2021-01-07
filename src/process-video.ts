@@ -4,6 +4,8 @@ import { mkdirSafe } from '@lib/mkdir-safe'
 import { downloadVideo } from '@lib/download-video'
 import { downloadFile } from '@lib/download-file'
 import { rmdirSafe } from '@lib/rmdir-safe'
+import { fileIsTooBigForTelegram } from '@lib/check-file-size'
+
 import { sendAudio, sendVideo } from '@src/tg-api'
 import { $items, addItem, editItem, removeItem } from '@src/store'
 import { mergeStreams } from '@src/merge-streams'
@@ -78,33 +80,36 @@ export const processVideo = async (videoId: string): Promise<void> => {
       audio: audioFilePath,
       result: destVideoFile
     })
-    await sendVideo(
-      {
-        caption: info.videoDetails.title,
-        duration: parseInt(video.contentLength),
-        height: video.height,
-        width: video.width,
-        path: destVideoFile,
-        thumb: thumbFilePath
-      },
-      {
-        replyMarkup: {
-          _: 'replyMarkupInlineKeyboard',
-          rows: [
-            [
-              {
-                _: 'inlineKeyboardButton',
-                text: 'Watch on Youtube',
-                type: {
-                  _: 'inlineKeyboardButtonTypeUrl',
-                  url: `https://youtu.be/${videoId}`
+
+    if (!(await fileIsTooBigForTelegram({ filePath: destVideoFile }))) {
+      await sendVideo(
+        {
+          caption: info.videoDetails.title,
+          duration: parseInt(video.contentLength),
+          height: video.height,
+          width: video.width,
+          path: destVideoFile,
+          thumb: thumbFilePath
+        },
+        {
+          replyMarkup: {
+            _: 'replyMarkupInlineKeyboard',
+            rows: [
+              [
+                {
+                  _: 'inlineKeyboardButton',
+                  text: 'Watch on Youtube',
+                  type: {
+                    _: 'inlineKeyboardButtonTypeUrl',
+                    url: `https://youtu.be/${videoId}`
+                  }
                 }
-              }
+              ]
             ]
-          ]
+          }
         }
-      }
-    )
+      )
+    }
     await sendAudio({
       duration: parseInt(audio.approxDurationMs),
       path: audioFilePath,
