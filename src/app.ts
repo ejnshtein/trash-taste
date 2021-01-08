@@ -26,20 +26,20 @@ async function checkVideos() {
       !items.find((e) => e.id === item['yt:videoId']).processing
   )
 
-  const outdatedItems = items.filter(
-    (e) => !feedItems.some((i) => i.id === e.id)
-  )
-
-  if (outdatedItems.length > 0) {
-    removeItem(outdatedItems.map((e) => e.id))
-  }
-
   if (newItems.length > 0) {
     addItem(newItems)
     for (const item of newItems) {
       await sendMessage({ title: item.title, videoId: item['yt:videoId'] })
       await processVideo(item['yt:videoId'])
     }
+  }
+
+  const outdatedItems = items.filter(
+    (e) => !feedItems.some((i) => i.id === e.id)
+  )
+
+  if (outdatedItems.length > 0) {
+    removeItem(outdatedItems.map((e) => e.id))
   }
 }
 
