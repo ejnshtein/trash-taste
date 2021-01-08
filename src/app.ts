@@ -46,7 +46,10 @@ async function checkVideos() {
 // eslint-disable-next-line no-void,prettier/prettier
 void async function main(): Promise<void> {
   const feedItems = await loadFeed()
-  if (env('NODE_ENV').is('development')) {
+  if (
+    env('NODE_ENV').is('development') ||
+    process.argv.includes('--upload-last-episode')
+  ) {
     setItems(
       feedItems.slice(1).map((item) => ({
         id: item['yt:videoId'],

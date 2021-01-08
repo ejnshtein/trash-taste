@@ -8,6 +8,7 @@
   "scripts": {
     "start": "node ./dist/app.js",
     "start:rss":"node ./dist/rss.js",
+    "upload-last-ep": "node ./dist/app.js --upload-last-episode",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "test": "ts-node ./test.ts",
