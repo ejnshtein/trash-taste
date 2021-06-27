@@ -24,7 +24,7 @@ export async function loadFeed(): Promise<YTFeedItem[]> {
     const data = await parser.parseURL(
       `https://www.youtube.com/feeds/videos.xml?channel_id=${process.env.YT_CHANNEL_ID}`
     )
-    return (data.items as unknown) as YTFeedItem[]
+    return data.items as unknown as YTFeedItem[]
   } catch (e) {
     console.error(
       `Error while requesting RSS feed for the channel https://www.youtube.com/channel/${process.env.YT_CHANNEL_ID}`,

@@ -50,9 +50,10 @@ export const processVideo = async (videoId: string): Promise<void> => {
   console.log(`Processing ${videoId} ${info.videoDetails.title}`)
   console.log(video.url)
 
-  const { url: thumbUrl } = info.videoDetails.thumbnail.thumbnails[
-    info.videoDetails.thumbnail.thumbnails.length - 1
-  ]
+  const { url: thumbUrl } =
+    info.videoDetails.thumbnail.thumbnails[
+      info.videoDetails.thumbnail.thumbnails.length - 1
+    ]
 
   const videoDirPath = path.resolve('./.tmp', info.videoDetails.videoId)
   const audioFilePath = path.join(videoDirPath, 'audio.mp3')

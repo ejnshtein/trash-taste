@@ -13,18 +13,14 @@ services:
     networks:
       - default
     command: yarn start
-  # rss:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   environment:
-  #     - NODE_ENV=production
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - default
-  #   command: yarn start:rss
+  posgres:
+    image: postgres:13.3
+    env_file:
+      - .env
+    networks:
+      - default
+    expose:
+      - 5432
 
 networks:
   default:

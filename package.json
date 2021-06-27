@@ -1,13 +1,13 @@
 {
   "name": "trash-taste",
   "version": "1.1.0",
-  "main": "app.js",
   "repository": "github:ejnshtein/trash-taste",
-  "author": "ejnshtein",
   "license": "MIT",
+  "author": "ejnshtein",
+  "main": "app.js",
   "scripts": {
     "start": "node ./dist/app.js",
-    "start:rss":"node ./dist/rss.js",
+    "start:rss": "node ./dist/rss.js",
     "upload-last-ep": "node ./dist/app.js --upload-last-episode",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
@@ -21,41 +21,58 @@
       "pre-commit": "npm run lint"
     }
   },
+  "eslintConfig": {
+    "env": {
+      "node": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": 2020,
+      "sourceType": "module"
+    },
+    "plugins": [],
+    "extends": [
+      "standard",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "rules": {
+      "camelcase": "warn",
+      "no-prototype-builtins": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-var-requires": "warn"
+    }
+  },
   "dependencies": {
-    "airgram": "^3.1.1",
-    "effector": "^21.5.0",
+    "airgram": "4",
     "fluent-ffmpeg": "^2.1.2",
-    "forever": "^3.0.2",
-    "html-entities": "^1.3.1",
-    "node-schedule": "^1.3.2",
+    "forever": "^4.0.1",
+    "html-entities": "^2.3.2",
+    "node-schedule": "^2.0.0",
     "rss-parser": "^3.9.0",
-    "smol-request": "2.1.0",
-    "ytdl-core": "^4.0.3"
+    "smol-request": "^2.1.1",
+    "youtube-notification": "^1.1.0",
+    "ytdl-core": "^4.8.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.1",
-    "@babel/preset-typescript": "^7.10.4",
-    "@types/eslint": "^7.2.0",
-    "@types/fluent-ffmpeg": "^2.1.16",
-    "@types/node": "^14.6.4",
-    "@types/node-schedule": "^1.3.0",
-    "@typescript-eslint/eslint-plugin": "^3.9.1",
-    "@typescript-eslint/parser": "^3.9.1",
-    "babel-plugin-add-import-extension": "^1.4.3",
-    "eslint": "^7.8.1",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.22.0",
+    "@types/eslint": "^7.2.13",
+    "@types/fluent-ffmpeg": "^2.1.17",
+    "@types/node": "^15.12.4",
+    "@types/node-schedule": "^1.3.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.0",
+    "eslint": "^7.29.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-prettier": "^3.4.0",
     "husky": "^4.3.0",
     "module-alias": "^2.2.2",
-    "prettier": "^2.1.2",
-    "standard": "^14.3.4",
+    "prettier": "^2.3.2",
+    "standard": "^16.0.3",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.3"
+    "typescript": "^4.3.4"
   },
   "_moduleAliases": {
     "@src": "dist",
