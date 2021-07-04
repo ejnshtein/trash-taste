@@ -1,7 +1,7 @@
-FROM ejnshtein/tdlib:1.7.0
+FROM ejnshtein/tdlib:latest
 
-# https://github.com/nodejs/docker-node/blob/ad676318f09f9dee821ac6704340000d75fe31bc/15/alpine3.12/Dockerfile
-ENV NODE_VERSION 15.5.1
+# https://github.com/nodejs/docker-node/blob/main/16/alpine3.12/Dockerfile
+ENV NODE_VERSION 16.3.0
 
 RUN addgroup -g 1000 node \
     && adduser -u 1000 -G node -s /bin/sh -D node \
@@ -13,7 +13,7 @@ RUN addgroup -g 1000 node \
       && case "${alpineArch##*-}" in \
         x86_64) \
           ARCH='x64' \
-          CHECKSUM="838db1c71ce88a3f2335ba7fbbcb1a633ff53d7826511d5e1aebbc47e0a32326" \
+          CHECKSUM="d73505cf34e881703324265ef9d7a753b1db2d62ab326be01d1ea73c858d4ca7" \
           ;; \
         *) ;; \
       esac \
@@ -39,7 +39,7 @@ RUN addgroup -g 1000 node \
     && for key in \
       4ED778F539E3634C779C87C6D7062848A1AB005C \
       94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
-      1C050899334244A8AF75E53792EF661D867B9DFA \
+      74F12602B6F1C4E913FAA37AD3A89613643B6201 \
       71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
       8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
       C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \

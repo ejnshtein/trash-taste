@@ -13,9 +13,8 @@
     },
     {
       "label": "tsc-watch",
-      "command": "yarn",
-      "args": [ "watch-ts" ],
-      "type":"shell",
+      "script": "watch-ts",
+      "type":"npm",
       "isBackground": true,
       "group":"build",
       "problemMatcher": "$tsc-watch",

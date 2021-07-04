@@ -4,15 +4,15 @@ services:
   app:
     environment:
       - NODE_ENV=development
+      - NODE_OPTIONS=--enable-source-maps
     ports:
       - 9222:9222
     volumes:
       - ./dist:/usr/src/app/dist
       - ./package.json:/usr/src/app/package.json
-      - ./yarn.lock:/usr/src/app/yarn.lock
-      - ./.tmp:/usr/src/app/.tmp/
       - ./forever.json:/usr/src/app/forever.json
+      - ./yarn.lock:/usr/src/app/yarn.lock
+      - ./.tmp:/usr/src/app/.tmp
+      - ./assets:/usr/src/app/assets
+      - ./types:/usr/src/app/types
     command: yarn watch-js
-    posgres:
-      ports:
-        - 5432:5432

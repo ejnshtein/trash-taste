@@ -1,6 +1,10 @@
-export type EnvKey = 'NODE_ENV' | string
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const env = (key: EnvKey) => ({
-  is: (value: string): boolean => process.env[key] === value
-})
+export const {
+  NODE_ENV,
+  TOKEN,
+  YT_CHANNEL_ID,
+  TELEGRAM_CHANNEL_ID,
+  ADMIN_ID,
+  PORT,
+  TG_API_ID,
+  TG_API_HASH
+} = process.env

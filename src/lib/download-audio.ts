@@ -1,27 +1,24 @@
 import * as ytdl from 'ytdl-core'
 import fs from 'fs'
 
-export const downloadVideo = async (
+export const downloadAudio = async (
   info: ytdl.videoInfo,
-  video: ytdl.videoFormat,
+  audio: ytdl.videoFormat,
   filePath: string
 ): Promise<void> => {
   const writeStream = fs.createWriteStream(filePath)
 
-  console.log(
-    `Downloading ${video.hasAudio ? 'audio' : 'video'}`,
-    info.videoDetails.title
-  )
+  console.log(`Downloading audio`, info.videoDetails.title)
 
   return new Promise((resolve, reject) => {
     const stream = ytdl.downloadFromInfo(info, {
-      quality: video.quality,
-      format: video
+      quality: audio.quality,
+      format: audio
     })
     stream.pipe(writeStream)
     stream.once('error', reject)
     stream.once('end', () => {
-      console.log(`${video.hasAudio ? 'audio' : 'video'} downloaded`)
+      console.log(`Audio downloaded`)
       resolve()
     })
   })

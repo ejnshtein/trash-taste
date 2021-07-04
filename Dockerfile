@@ -3,11 +3,10 @@ FROM ejnshtein/node-tdlib:latest
 
 WORKDIR /usr/src/app/
 
+ADD ./assets ./assets
 ADD ./src ./src
-ADD ./forever.json .
-ADD ./package.json .
-ADD ./tsconfig.json .
-ADD ./yarn.lock .
+ADD ./types ./types
+ADD ./package.json ./tsconfig.json ./yarn.lock ./
 
 # set tdlib
 RUN cp /usr/local/lib/libtdjson.so ./libtdjson.so
@@ -32,8 +31,9 @@ RUN apk add --update \
 # copy ffmpeg
 COPY --from=ffmpeg /opt/ffmpeg /opt/ffmpeg
 COPY --from=ffmpeg /usr/lib/libfdk-aac.so.2 /usr/lib/libfdk-aac.so.2
-COPY --from=ffmpeg /usr/lib/librav1e.so.0 /usr/lib/librav1e.so.0
-COPY --from=ffmpeg /usr/lib/libx265.so.179  /usr/lib/libx265.so.179
+COPY --from=ffmpeg /usr/lib/librav1e.so /usr/lib/librav1e.so
+COPY --from=ffmpeg /usr/lib/libx265.so /usr/lib/
+COPY --from=ffmpeg /usr/lib/libx265.so.* /usr/lib/
 
 ENV PATH=/opt/ffmpeg/bin:$PATH
 
@@ -41,4 +41,4 @@ RUN yarn install --network-timeout 100000
 
 RUN yarn build-ts
 
-# CMD [ "yarn", "start" ]
+CMD [ "yarn", "start" ]
