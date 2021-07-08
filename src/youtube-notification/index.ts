@@ -216,7 +216,7 @@ export class YouTubeNotifier extends EventEmitter {
     }
 
     res
-      .status(200)
+      .status(204)
       .set('Content-Type', 'text/plain')
       .end(params.get('hub.challenge'))
 
