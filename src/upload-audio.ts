@@ -232,14 +232,17 @@ export const uploadAudio = async (
 
   try {
     await new Promise<void>((resolve, reject) => {
-      let canEdit = true
+      let canSendUpdateMessage = true
       const timer = setTimeout(() => {
-        if (!canEdit) {
-          canEdit = false
+        if (!canSendUpdateMessage) {
+          canSendUpdateMessage = false
         }
       }, 5000)
 
       const onFileUpload = async (fileUpdate: UpdateFile) => {
+        if (!canSendUpdateMessage) {
+          return
+        }
         const {
           remote: { uploadedSize },
           expectedSize
@@ -258,6 +261,8 @@ export const uploadAudio = async (
             text: await parseTextEntities(msg)
           }
         })
+
+        canSendUpdateMessage = false
       }
 
       events.on('uploadFile', onFileUpload)
