@@ -6,7 +6,7 @@
   "author": "ejnshtein",
   "scripts": {
     "start": "node ./dist/app.js",
-    "start:rss": "node ./dist/rss.js",
+    "upload-last-ep": "node ./dist/app.js --upload-last-ep",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "watch-js": "forever ./forever.json",

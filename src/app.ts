@@ -13,7 +13,7 @@ import { toObject } from 'airgram'
 import { loadFeed } from './lib/rss-parser'
 import { scheduleJob } from 'node-schedule'
 
-const items: string[] = []
+let items: string[] = []
 
 async function checkVideos() {
   const feedItems = await loadFeed()
@@ -30,6 +30,8 @@ async function checkVideos() {
       await sendMessageToChannel(item)
     }
   }
+
+  items = feedItems.map(({ video: { id } }) => id)
 }
 
 // eslint-disable-next-line no-void,prettier/prettier
@@ -67,12 +69,16 @@ void async function main(): Promise<void> {
 
   if (items.length === 0) {
     items.push(...feedItems.map(({ video: { id } }) => id))
-    return
   }
 
   if (NODE_ENV === 'development') {
-    checkVideos()
-    return
+    await checkVideos()
+    // return
+  }
+
+  if (process.argv.includes('--upload-last-ep')) {
+    items.shift()
+    await checkVideos()
   }
 
   scheduleJob('*/10 * * * *', checkVideos)
