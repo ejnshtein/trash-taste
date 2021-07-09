@@ -235,7 +235,7 @@ export const uploadAudio = async (
       let canSendUpdateMessage = true
       const timer = setTimeout(() => {
         if (!canSendUpdateMessage) {
-          canSendUpdateMessage = false
+          canSendUpdateMessage = true
         }
       }, 5000)
 
