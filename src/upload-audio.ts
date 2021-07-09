@@ -1,22 +1,29 @@
-import { Error, SendMessageParams, UpdateNewCallbackQuery } from 'airgram'
+import {
+  Error,
+  SendMessageParams,
+  UpdateFile,
+  UpdateMessageSendFailed,
+  UpdateNewCallbackQuery
+} from 'airgram'
 import path from 'path'
 import * as ytdl from 'ytdl-core'
 import { downloadAudio } from './lib/download-audio'
-import { encodeAudio } from './lib/encode-audio'
+// import { encodeAudio } from './lib/encode-audio'
 import { TELEGRAM_CHANNEL_ID } from './lib/env'
 import { getVideoUrlFromTextEntities } from './lib/get-video-url-from-text-entities'
 import { airgram, parseTextEntities } from './tg-api'
 import { addAudioMetadata } from './lib/add-audio-metadata'
+import { events } from './handle-file-upload'
 
 export const uploadAudio = async (
   update: UpdateNewCallbackQuery
 ): Promise<Error | void> => {
-  console.log('(1/5) Processing audio...')
+  console.log('(1/4) Processing audio...')
   const { response: messageToUpdate } = await airgram.api.sendMessage({
     chatId: update.chatId,
     inputMessageContent: {
       _: 'inputMessageText',
-      text: await parseTextEntities(`(1/5) Processing audio...`)
+      text: await parseTextEntities(`(1/4) Processing audio...`)
     }
   })
 
@@ -60,14 +67,15 @@ export const uploadAudio = async (
   }
 
   const format = ytdl.chooseFormat(videoInfo.formats, {
-    quality: 'highestaudio',
-    filter: 'audioonly'
+    filter: (q) => q.container === 'mp4' && !q.hasVideo
   })
 
   const audioPath = path.join(
     process.cwd(),
     '.tmp',
-    `${videoInfo.videoDetails.videoId}.${format.container}`
+    `${videoInfo.videoDetails.videoId}.${
+      format.container === 'mp4' ? 'm4a' : format.container
+    }`
   )
 
   console.log(
@@ -81,13 +89,13 @@ export const uploadAudio = async (
       chatId: update.chatId,
       inputMessageContent: {
         _: 'inputMessageText',
-        text: await parseTextEntities(`(2/5) Downloading audio...`)
+        text: await parseTextEntities(`(2/4) Downloading audio...`)
       }
     })
   )
 
   try {
-    console.log('(2/5) Downloading audio...')
+    console.log('(2/4) Downloading audio...')
     await downloadAudio(videoInfo, format, audioPath)
   } catch (e) {
     await airgram.api.sendMessage({
@@ -102,43 +110,43 @@ export const uploadAudio = async (
     return
   }
 
+  // await airgram.api.sendMessage({
+  //   chatId: update.chatId,
+  //   inputMessageContent: {
+  //     _: 'inputMessageText',
+  //     text: await parseTextEntities(`(3/4) Encoding audio...`)
+  //   }
+  // })
+
+  // let audioMP3path: string
+  // try {
+  //   console.log('(3/5) Encoding audio...')
+  //   audioMP3path = await encodeAudio(audioPath, format.audioBitrate)
+  // } catch (e) {
+  //   await airgram.api.sendMessage({
+  //     chatId: update.chatId,
+  //     inputMessageContent: {
+  //       _: 'inputMessageText',
+  //       text: await parseTextEntities(
+  //         `Oooops!\nGot an error during encoding audio file: ${e}`
+  //       )
+  //     }
+  //   })
+
+  //   return
+  // }
+
   await airgram.api.sendMessage({
     chatId: update.chatId,
     inputMessageContent: {
       _: 'inputMessageText',
-      text: await parseTextEntities(`(3/5) Encoding audio...`)
-    }
-  })
-
-  let audioMP3path: string
-  try {
-    console.log('(3/5) Encoding audio...')
-    audioMP3path = await encodeAudio(audioPath, format.audioBitrate)
-  } catch (e) {
-    await airgram.api.sendMessage({
-      chatId: update.chatId,
-      inputMessageContent: {
-        _: 'inputMessageText',
-        text: await parseTextEntities(
-          `Oooops!\nGot an error during encoding audio file: ${e}`
-        )
-      }
-    })
-
-    return
-  }
-
-  await airgram.api.sendMessage({
-    chatId: update.chatId,
-    inputMessageContent: {
-      _: 'inputMessageText',
-      text: await parseTextEntities(`(4/5) Adding metadata...`)
+      text: await parseTextEntities(`(3/4) Adding metadata...`)
     }
   })
 
   try {
-    console.log('(4/5) Adding metadata...')
-    await addAudioMetadata(audioMP3path, videoInfo.videoDetails.title)
+    console.log('(3/4) Adding metadata...')
+    await addAudioMetadata(audioPath, videoInfo.videoDetails.title)
   } catch (e) {
     await airgram.api.sendMessage({
       chatId: update.chatId,
@@ -183,7 +191,7 @@ export const uploadAudio = async (
       _: 'inputMessageAudio',
       audio: {
         _: 'inputFileLocal',
-        path: audioMP3path
+        path: audioPath
       },
       albumCoverThumbnail: {
         _: 'inputThumbnail',
@@ -203,14 +211,16 @@ export const uploadAudio = async (
     }
   }
 
-  console.log('(5/5) Uploading audio...')
+  console.log('4/4) Uploading audio...')
   await airgram.api.sendMessage({
     chatId: update.chatId,
     inputMessageContent: {
       _: 'inputMessageText',
-      text: await parseTextEntities(`(5/5) Uploading audio...`)
+      text: await parseTextEntities(`(4/4) Uploading audio...`)
     }
   })
+
+  const startUpload = Date.now()
 
   const { response: newAudioResponse } = await airgram.api.sendMessage(
     audioMessage
@@ -218,6 +228,63 @@ export const uploadAudio = async (
 
   if (newAudioResponse._ === 'error') {
     return newAudioResponse
+  }
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      let canEdit = true
+      const timer = setTimeout(() => {
+        if (!canEdit) {
+          canEdit = false
+        }
+      }, 5000)
+
+      const onFileUpload = async (fileUpdate: UpdateFile) => {
+        const {
+          remote: { uploadedSize },
+          expectedSize
+        } = fileUpdate.file
+        const uploadProgress = (uploadedSize / expectedSize) * 100
+
+        const msg = `Uploading ${uploadProgress.toFixed(2)}% ${path.basename(
+          fileUpdate.file.local.path
+        )}`
+        console.log(msg)
+
+        await airgram.api.sendMessage({
+          chatId: update.chatId,
+          inputMessageContent: {
+            _: 'inputMessageText',
+            text: await parseTextEntities(msg)
+          }
+        })
+      }
+
+      events.on('uploadFile', onFileUpload)
+
+      events.once('audioUploaded', () => {
+        clearTimeout(timer)
+        events.removeListener('uploadFile', onFileUpload)
+        resolve()
+      })
+      events.once('audioUploadFailed', (update) => {
+        clearTimeout(timer)
+        events.removeListener('uploadFile', onFileUpload)
+        reject(update)
+      })
+    })
+  } catch (err) {
+    const { errorMessage } = err as UpdateMessageSendFailed
+    await airgram.api.sendMessage({
+      chatId: update.chatId,
+      inputMessageContent: {
+        _: 'inputMessageText',
+        text: await parseTextEntities(
+          `Error while uploading the audio!\n\n${errorMessage}`
+        )
+      }
+    })
+    return
   }
 
   await airgram.api.sendMessage({
