@@ -220,8 +220,6 @@ export const uploadAudio = async (
     }
   })
 
-  const startUpload = Date.now()
-
   const { response: newAudioResponse } = await airgram.api.sendMessage(
     audioMessage
   )
@@ -233,7 +231,7 @@ export const uploadAudio = async (
   try {
     await new Promise<void>((resolve, reject) => {
       let canSendUpdateMessage = true
-      const timer = setTimeout(() => {
+      const interval = setInterval(() => {
         if (!canSendUpdateMessage) {
           canSendUpdateMessage = true
         }
@@ -268,12 +266,12 @@ export const uploadAudio = async (
       events.on('uploadFile', onFileUpload)
 
       events.once('audioUploaded', () => {
-        clearTimeout(timer)
+        clearInterval(interval)
         events.removeListener('uploadFile', onFileUpload)
         resolve()
       })
       events.once('audioUploadFailed', (update) => {
-        clearTimeout(timer)
+        clearInterval(interval)
         events.removeListener('uploadFile', onFileUpload)
         reject(update)
       })
