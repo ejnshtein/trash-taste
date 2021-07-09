@@ -12,7 +12,6 @@ services:
       - ./package.json:/usr/src/app/package.json
       - ./forever.json:/usr/src/app/forever.json
       - ./yarn.lock:/usr/src/app/yarn.lock
-      - ./.tmp:/usr/src/app/.tmp
       - ./assets:/usr/src/app/assets
       - ./types:/usr/src/app/types
     command: yarn watch-js

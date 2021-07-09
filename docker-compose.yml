@@ -14,9 +14,8 @@ services:
       - .env
     networks:
       - default
-    # volumes:
-    #   - tdlib-db:/usr/src/app/tdl-db
-    #   - tdlib-files:/usr/src/app/tdl-files
+    volumes:
+      - ./.tmp:/usr/src/app/.tmp
     command: yarn start
 
 # volumes:
