@@ -15,10 +15,9 @@ export const encodeAudio = async (
   return new Promise((resolve, reject) => {
     const saveToFile = path.join(dir, `${name}.mp3`)
     ffmpeg(audioFilePath)
-      .audioBitrate(bitrate)
-      .audioChannels(2)
-      .audioFrequency(44100)
-      .noVideo()
+      .outputOption('-c:v copy')
+      .outputOption('-c:a libmp3lame')
+      .outputOption('-q:a 4')
       .once('end', () => {
         resolve(saveToFile)
       })
