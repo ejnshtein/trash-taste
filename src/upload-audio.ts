@@ -18,12 +18,12 @@ import { events } from './handle-file-upload'
 export const uploadAudio = async (
   update: UpdateNewCallbackQuery
 ): Promise<Error | void> => {
-  console.log('(1/4) Processing audio...')
+  console.log('(1/5) Processing audio...')
   const { response: messageToUpdate } = await airgram.api.sendMessage({
     chatId: update.chatId,
     inputMessageContent: {
       _: 'inputMessageText',
-      text: await parseTextEntities(`(1/4) Processing audio...`)
+      text: await parseTextEntities(`(1/5) Processing audio...`)
     }
   })
 
@@ -86,12 +86,12 @@ export const uploadAudio = async (
     chatId: update.chatId,
     inputMessageContent: {
       _: 'inputMessageText',
-      text: await parseTextEntities(`(2/4) Downloading audio...`)
+      text: await parseTextEntities(`(2/5) Downloading audio...`)
     }
   })
 
   try {
-    console.log('(2/4) Downloading audio...')
+    console.log('(2/5) Downloading audio...')
     await downloadAudio(videoInfo, format, audioPath)
   } catch (e) {
     await airgram.api.sendMessage({
@@ -110,7 +110,7 @@ export const uploadAudio = async (
     chatId: update.chatId,
     inputMessageContent: {
       _: 'inputMessageText',
-      text: await parseTextEntities(`(3/4) Encoding audio...`)
+      text: await parseTextEntities(`(3/5) Encoding audio...`)
     }
   })
 
@@ -136,12 +136,12 @@ export const uploadAudio = async (
     chatId: update.chatId,
     inputMessageContent: {
       _: 'inputMessageText',
-      text: await parseTextEntities(`(3/4) Adding metadata...`)
+      text: await parseTextEntities(`(4/5) Adding metadata...`)
     }
   })
 
   try {
-    console.log('(3/4) Adding metadata...')
+    console.log('(4/5) Adding metadata...')
     await addAudioMetadata(audioMP3path, videoInfo.videoDetails.title)
   } catch (e) {
     await airgram.api.sendMessage({
@@ -207,12 +207,12 @@ export const uploadAudio = async (
     }
   }
 
-  console.log('4/4) Uploading audio...')
+  console.log('5/5) Uploading audio...')
   await airgram.api.sendMessage({
     chatId: update.chatId,
     inputMessageContent: {
       _: 'inputMessageText',
-      text: await parseTextEntities(`(4/4) Uploading audio...`)
+      text: await parseTextEntities(`(j/5) Uploading audio...`)
     }
   })
 
