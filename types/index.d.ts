@@ -1,3 +1,4 @@
+import './ffmetadata'
 export interface NewVideoNotified {
   video: {
     id: string

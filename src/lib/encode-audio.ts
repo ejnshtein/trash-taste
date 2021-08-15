@@ -1,7 +1,8 @@
+import { FFMPEG_PATH } from '@src/constants'
 import ffmpeg from 'fluent-ffmpeg'
 import path from 'path'
 
-ffmpeg.setFfmpegPath('/opt/ffmpeg/bin/ffmpeg')
+ffmpeg.setFfmpegPath(FFMPEG_PATH)
 
 /**
  * ffmpeg -i input.wav -vn -ar 44100 -ac 2 -b:a 192k output.mp3

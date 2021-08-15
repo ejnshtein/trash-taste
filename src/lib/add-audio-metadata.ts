@@ -1,5 +1,8 @@
-import NodeID3 from 'node-id3'
+import { FFMPEG_PATH } from '@src/constants'
 import path from 'path'
+import ffmetadata from 'ffmetadata'
+
+ffmetadata.setFfmpegPath(FFMPEG_PATH)
 
 const getCurrentTTSeason = () => {
   return (
@@ -14,14 +17,16 @@ export const addAudioMetadata = async (
   title: string
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    NodeID3.write(
+    ffmetadata.write(
+      audioFilePath,
       {
         artist: 'TrashTaste Podcast',
         album: `Season ${getCurrentTTSeason()}`,
-        title,
-        image: path.join(process.cwd(), 'assets', 'thumb.jpg')
+        label: title
       },
-      audioFilePath,
+      {
+        attachments: [path.join(process.cwd(), 'assets', 'thumb.jpg')]
+      },
       (err) => {
         if (err) {
           return reject(err)
