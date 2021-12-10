@@ -13,22 +13,12 @@ export async function init(): Promise<void> {
 
   if (NODE_ENV === 'development') {
     await checkVideos()
-    // return
-  }
-
-  if (process.argv.includes('--upload-last-ep')) {
-    items.shift()
-    await checkVideos()
   }
 }
 
-export async function uploadLastEpisode(): Promise<void> {
-  items.shift()
-
-  return checkVideos()
-}
-
-export async function checkVideos(): Promise<void> {
+export async function checkVideos({
+  uploadLastEp = false
+}: { uploadLastEp?: boolean } = {}): Promise<void> {
   const feedItems = await loadFeed()
 
   if (items.length === 0) {
@@ -42,6 +32,12 @@ export async function checkVideos(): Promise<void> {
     for (const item of newItems) {
       await sendMessageToChannel(item)
     }
+  } else {
+    if (uploadLastEp) {
+      await sendMessageToChannel(feedItems[0])
+    }
+
+    return
   }
 
   items = feedItems.map(({ video: { id } }) => id)
