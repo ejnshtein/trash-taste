@@ -34,7 +34,7 @@ COPY --from=ffmpeg /usr/lib/libx265.so.* /usr/lib/
 
 ENV PATH=/opt/ffmpeg/bin:$PATH
 
-RUN yarn install --network-timeout 100000
+RUN yarn install --network-timeout 1000000000
 
 ADD ./assets ./assets
 ADD ./src ./src
