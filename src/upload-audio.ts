@@ -212,7 +212,7 @@ export const uploadAudio = async (
     chatId: update.chatId,
     inputMessageContent: {
       _: 'inputMessageText',
-      text: await parseTextEntities(`(j/5) Uploading audio...`)
+      text: await parseTextEntities(`(5/5) Uploading audio...`)
     }
   })
 
