@@ -1,6 +1,6 @@
 import { NewVideoNotified } from '../../types'
-import { YTFeedItem } from '../../types/yd-rss'
 import RssParser from 'rss-parser'
+
 const parser = new RssParser({
   customFields: {
     item: [
@@ -28,7 +28,7 @@ export async function loadFeed(): Promise<NewVideoNotified[]> {
     const data = await parser.parseURL(
       `https://www.youtube.com/feeds/videos.xml?channel_id=${process.env.YT_CHANNEL_ID}`
     )
-    return (data.items as unknown as YTFeedItem[]).map((item) => ({
+    return data.items.map((item) => ({
       channel: {
         id: item['yt:channelId'],
         link: `https://www.youtube.com/user/${item['yt:channelId']}`,

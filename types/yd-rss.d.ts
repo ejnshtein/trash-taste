@@ -32,15 +32,3 @@ export interface MediaGroup {
     }[]
   }[]
 }
-
-export interface YTFeedItem {
-  id: string
-  title: string
-  author: string
-  'yt:videoId': string
-  'yt:channelId': string
-  pubDate: string
-  isoDate: string
-  'media:group': MediaGroup[]
-  updated: string
-}

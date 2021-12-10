@@ -14,7 +14,7 @@ void async function main(): Promise<void> {
 
   await init()
 
-  scheduleJob('*/10 * * * *', checkVideos)
+  scheduleJob('*/10 * * * *', () => checkVideos())
 
   async function closeGracefully(signal: NodeJS.SignalsListener) {
     console.log(`*^!@4=> Received signal to terminate: ${signal}`)

@@ -7,7 +7,7 @@ import {
 } from 'airgram'
 import path from 'path'
 import * as ytdl from 'ytdl-core'
-import { downloadAudio } from './lib/download-audio'
+import { downloadVideo } from './lib/download-video'
 import { encodeAudio } from './lib/encode-audio'
 import { TELEGRAM_CHANNEL_ID } from './lib/env'
 import { getVideoUrlFromTextEntities } from './lib/get-video-url-from-text-entities'
@@ -92,7 +92,7 @@ export const uploadAudio = async (
 
   try {
     console.log('(2/5) Downloading audio...')
-    await downloadAudio(videoInfo, format, audioPath)
+    await downloadVideo(videoInfo, format, audioPath)
   } catch (e) {
     await airgram.api.sendMessage({
       chatId: update.chatId,
