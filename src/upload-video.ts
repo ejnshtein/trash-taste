@@ -104,25 +104,6 @@ export const uploadVideo = async (
   }
 
   if (!(await checkFileSizeForTelegram(videoPath))) {
-    await airgram.api.editMessageReplyMarkup({
-      chatId: update.chatId,
-      messageId: update.messageId,
-      replyMarkup: {
-        _: 'replyMarkupInlineKeyboard',
-        rows: [
-          [
-            {
-              _: 'inlineKeyboardButton',
-              text: 'Upload audio',
-              type: {
-                _: 'inlineKeyboardButtonTypeCallback',
-                data: Buffer.from('uploadaudio').toString('base64')
-              }
-            }
-          ]
-        ]
-      }
-    })
     await airgram.api.sendMessage({
       chatId: update.chatId,
       inputMessageContent: {
