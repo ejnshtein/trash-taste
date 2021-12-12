@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "airgram": "4",
+    "easydl": "^1.0.1",
     "express": "^4.17.1",
     "ffmetadata": "^1.7.0",
     "fluent-ffmpeg": "^2.1.2",

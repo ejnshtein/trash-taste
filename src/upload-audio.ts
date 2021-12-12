@@ -6,8 +6,9 @@ import {
   UpdateNewCallbackQuery
 } from 'airgram'
 import path from 'path'
+import fs from 'fs'
 import * as ytdl from 'ytdl-core'
-import { downloadVideo } from './lib/download-video'
+import { downloadFile } from './lib/download-file'
 import { encodeAudio } from './lib/encode-audio'
 import { TELEGRAM_CHANNEL_ID } from './lib/env'
 import { getVideoUrlFromTextEntities } from './lib/get-video-url-from-text-entities'
@@ -92,7 +93,7 @@ export const uploadAudio = async (
 
   try {
     console.log('(2/5) Downloading audio...')
-    await downloadVideo(videoInfo, format, audioPath)
+    await downloadFile(format.url, audioPath)
   } catch (e) {
     await airgram.api.sendMessage({
       chatId: update.chatId,
@@ -293,6 +294,9 @@ export const uploadAudio = async (
       text: await parseTextEntities(`Done!`)
     }
   })
+
+  await fs.promises.rm(audioMP3path)
+  await fs.promises.rm(audioPath)
 
   console.log(`Audio uploaded!`)
 }

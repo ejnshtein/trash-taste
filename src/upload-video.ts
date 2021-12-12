@@ -1,4 +1,5 @@
 import path from 'path'
+import fs from 'fs'
 import {
   Error,
   SendMessageParams,
@@ -8,7 +9,7 @@ import {
 } from 'airgram'
 import * as ytdl from 'ytdl-core'
 import { getVideoUrlFromTextEntities } from '@lib/get-video-url-from-text-entities'
-import { downloadVideo } from '@lib/download-video'
+import { downloadFile } from '@src/lib/download-file'
 import { checkFileSizeForTelegram } from '@lib/check-file-size'
 import { TELEGRAM_CHANNEL_ID } from '@lib/env'
 import { airgram, parseTextEntities } from './tg-api'
@@ -89,7 +90,7 @@ export const uploadVideo = async (
 
   try {
     console.log('(2/3) Downloading video...')
-    await downloadVideo(videoInfo, format, videoPath)
+    await downloadFile(format.url, videoPath)
   } catch (e) {
     await airgram.api.sendMessage({
       chatId: update.chatId,
@@ -115,6 +116,30 @@ export const uploadVideo = async (
     })
 
     return
+  }
+
+  const thumbnail = []
+    .concat(videoInfo.videoDetails.thumbnails.sort((a, b) => a.width - b.width))
+    .pop()
+  const thumbnailPath = path.join(
+    process.cwd(),
+    '.tmp',
+    `thumbnail-${videoInfo.videoDetails.videoId}.jpg`
+  )
+
+  try {
+    console.log('Downloading Thumbnail...')
+    await downloadFile(thumbnail.url, thumbnailPath)
+  } catch (e) {
+    await airgram.api.sendMessage({
+      chatId: update.chatId,
+      inputMessageContent: {
+        _: 'inputMessageText',
+        text: await parseTextEntities(
+          `Ooops!\nGot an error during downloading of the thumbnail of a video: ${e}`
+        )
+      }
+    })
   }
 
   await airgram.api.sendMessage({
@@ -147,9 +172,10 @@ export const uploadVideo = async (
         _: 'inputThumbnail',
         thumbnail: {
           _: 'inputFileLocal',
-          path: path.join(process.cwd(), 'assets', 'thumb.jpg')
+          path: thumbnailPath
         }
       },
+      supportsStreaming: true,
       caption: await parseTextEntities(videoInfo.videoDetails.title)
     }
   }
@@ -161,6 +187,8 @@ export const uploadVideo = async (
   if (newVideoResponse._ === 'error') {
     return newVideoResponse
   }
+
+  console.log('(3/3) Uploading video...')
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -231,6 +259,9 @@ export const uploadVideo = async (
       text: await parseTextEntities(`Done!`)
     }
   })
+
+  await fs.promises.rm(videoPath)
+  await fs.promises.rm(thumbnailPath)
 
   console.log(`Video uploaded!`)
 }

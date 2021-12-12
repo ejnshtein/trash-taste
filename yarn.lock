@@ -1200,6 +1200,11 @@ duplexer@~0.1.1:
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.2.tgz#3abe43aef3835f8ae077d136ddce0f276b0400e6"
   integrity sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==
 
+easydl@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/easydl/-/easydl-1.0.1.tgz#1aff54743d00d62dab495772bf4db6707620d10e"
+  integrity sha512-0+Ix7jlcohORYGZviQrfsG54v6HM9Cp0XimaJlPnb6zQ+Co3cu/05q/Tu2HXjiVeMF3fLEHsB8axP7qQsf4KXg==
+
 ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
