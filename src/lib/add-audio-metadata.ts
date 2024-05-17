@@ -20,7 +20,12 @@ const getCurrentTTSeason = () => {
    * #150 ep is out nominating end of season 3
    * season 3 is from now on https://youtu.be/tseYLDWzTCc
    */
-  return 4
+  // return 4
+  /**
+   * #204 ep is out nominating end of season 4
+   * season 5 is from now on https://youtu.be/2hsRkCWTrAg
+   */
+  return 5
 }
 
 export const addAudioMetadata = async (
