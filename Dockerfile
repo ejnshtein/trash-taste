@@ -1,12 +1,13 @@
 FROM alfg/ffmpeg:latest as ffmpeg
-FROM ejnshtein/node-tdlib:latest
+# FROM ejnshtein/tdlib:latest as tdlib
+FROM node:20-alpine3.16 as base
 
-WORKDIR /usr/src/app/
+RUN npm i -g pnpm@^9
 
-ADD ./package.json ./tsconfig.json ./yarn.lock ./
+WORKDIR /app
 
 # set tdlib
-RUN cp /usr/local/lib/libtdjson.so ./libtdjson.so
+# COPY --from=tdlib /usr/local/lib/libtdjson.so ./libtdjson.so
 
 # set ffmpeg deps
 RUN apk add --update \
@@ -23,7 +24,8 @@ RUN apk add --update \
   opus \
   rtmpdump \
   x264-dev \
-  x265-dev
+  x265-dev \
+  lame-dev
 
 # copy ffmpeg
 COPY --from=ffmpeg /opt/ffmpeg /opt/ffmpeg
@@ -34,12 +36,15 @@ COPY --from=ffmpeg /usr/lib/libx265.so.* /usr/lib/
 
 ENV PATH=/opt/ffmpeg/bin:$PATH
 
-RUN yarn install --network-timeout 1000000000
+ADD ./package.json ./tsconfig.json ./pnpm-lock.yaml ./
+
+ENV CI=true
+RUN pnpm install
 
 ADD ./assets ./assets
 ADD ./src ./src
 ADD ./types ./types
 
-RUN yarn build-ts
+RUN pnpm build-ts
 
-CMD [ "yarn", "start" ]
+CMD [ "pnpm", "start" ]

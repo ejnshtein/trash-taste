@@ -1,58 +1,23 @@
-import { Airgram, Auth, FormattedText } from 'airgram'
-import path from 'path'
-import { TG_API_HASH, TG_API_ID } from './lib/env'
+import { Bot } from 'grammy'
+import { env } from './lib/env'
 
-const tdlibAbsolutePath = path.join('/usr', 'local', 'lib', 'libtdjson.so')
-
-export const airgram = new Airgram({
-  apiId: parseInt(TG_API_ID),
-  apiHash: TG_API_HASH,
-  databaseDirectory: './tdl-db',
-  filesDirectory: './tdl-files',
-  logVerbosityLevel: 0,
-  enableStorageOptimizer: true,
-  command: tdlibAbsolutePath,
-  databaseEncryptionKey: Buffer.from(TG_API_HASH).toString('base64')
+export const botClient = new Bot(env.TOKEN, {
+  client: {
+    apiRoot: 'http://local-telegram-bot-api:8081'
+  }
 })
 
-airgram.use(
-  new Auth({
-    token: process.env.TOKEN
+if (env.NODE_ENV !== 'production') {
+  botClient.use(async (ctx, next) => {
+    const startTime = Date.now()
+    await next()
+    const endTime = Date.now()
+    console.log(
+      `update ${ctx.update.update_id} processed in ${endTime - startTime} ms`
+    )
   })
-)
-
-const cachedChatIds = new Map<string, number>()
-
-export const getChatId = async (
-  username = process.env.TELEGRAM_CHANNEL_ID
-): Promise<number> => {
-  if (cachedChatIds.has(username)) {
-    return cachedChatIds.get(username)
-  }
-  const { response } = await airgram.api.searchPublicChat({
-    username
-  })
-  if (response._ === 'error') {
-    throw new Error('Channel not found')
-  }
-
-  cachedChatIds.set(username, response.id)
-
-  return response.id
 }
 
-export const parseTextEntities = async (
-  text: string
-): Promise<FormattedText> => {
-  const { response } = await airgram.api.parseTextEntities({
-    parseMode: {
-      _: 'textParseModeHTML'
-    },
-    text
-  })
-  if (response._ === 'error') {
-    throw new Error(response.message)
-  }
-
-  return response
-}
+botClient.catch((err) => {
+  console.error('Error:', err)
+})

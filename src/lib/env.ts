@@ -1,10 +1,12 @@
-export const {
-  NODE_ENV,
-  TOKEN,
-  YT_CHANNEL_ID,
-  TELEGRAM_CHANNEL_ID,
-  ADMIN_ID,
-  PORT,
-  TG_API_ID,
-  TG_API_HASH
-} = process.env
+import { envsafe, str, num } from 'envsafe'
+
+export const env = envsafe({
+  NODE_ENV: str({
+    devDefault: 'development',
+    choices: ['development', 'production']
+  }),
+  TOKEN: str(),
+  ADMIN_ID: num(),
+  YT_CHANNEL_ID: str(),
+  TELEGRAM_CHANNEL_ID: num()
+})

@@ -1,5 +1,6 @@
 import { NewVideoNotified } from '../../types'
 import RssParser from 'rss-parser'
+import { env } from './env'
 
 const parser = new RssParser({
   customFields: {
@@ -26,7 +27,7 @@ const parser = new RssParser({
 export async function loadFeed(): Promise<NewVideoNotified[]> {
   try {
     const data = await parser.parseURL(
-      `https://www.youtube.com/feeds/videos.xml?channel_id=${process.env.YT_CHANNEL_ID}`
+      `https://www.youtube.com/feeds/videos.xml?channel_id=${env.YT_CHANNEL_ID}`
     )
     return data.items.map((item) => ({
       channel: {
@@ -44,7 +45,7 @@ export async function loadFeed(): Promise<NewVideoNotified[]> {
     }))
   } catch (e) {
     console.error(
-      `Error while requesting RSS feed for the channel https://www.youtube.com/channel/${process.env.YT_CHANNEL_ID}`,
+      `Error while requesting RSS feed for the channel https://www.youtube.com/channel/${env.YT_CHANNEL_ID}`,
       e
     )
 

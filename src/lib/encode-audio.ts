@@ -8,16 +8,15 @@ ffmpeg.setFfmpegPath(FFMPEG_PATH)
  * ffmpeg -i input.wav -vn -ar 44100 -ac 2 -b:a 192k output.mp3
  */
 
-export const encodeAudio = async (
-  audioFilePath: string,
-  bitrate: number
-): Promise<string> => {
+export const encodeAudio = async (audioFilePath: string): Promise<string> => {
   const { name, dir } = path.parse(audioFilePath)
+  const saveToFile = path.join(dir, `${name}.mp3`)
+
   return new Promise((resolve, reject) => {
-    const saveToFile = path.join(dir, `${name}.mp3`)
     ffmpeg(audioFilePath)
-      .outputOption('-c:v copy')
-      .outputOption('-c:a libmp3lame')
+      .audioCodec('libmp3lame')
+      .videoCodec('copy')
+      // quality
       .outputOption('-q:a 4')
       .once('end', () => {
         resolve(saveToFile)

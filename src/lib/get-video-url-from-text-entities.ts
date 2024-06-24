@@ -1,22 +1,23 @@
-import { MessageContentUnion } from 'airgram'
+import { CallbackQuery } from 'grammy/types'
 
 export const getVideoUrlFromTextEntities = (
-  msg: MessageContentUnion
+  message: CallbackQuery['message']
 ): string => {
-  if (msg._ === 'messageText') {
-    const { type } = msg.text.entities.find(
-      (entity) =>
-        entity._ === 'textEntity' &&
-        ['textEntityTypeTextUrl', 'textEntityTypeUrl'].includes(entity.type._)
-    )
+  const entity = message.entities.find((entity) =>
+    ['url', 'text_link'].includes(entity.type)
+  )
 
-    if (type._ === 'textEntityTypeTextUrl') {
-      const { url } = type
+  if (entity && entity.type === 'text_link') {
+    const { url } = entity
 
-      return url
-    }
+    return url
+  }
 
-    return ''
+  if (entity && entity.type === 'url') {
+    const { offset, length } = entity
+    const url = message.text.slice(offset, offset + length)
+
+    return url
   }
 
   return ''

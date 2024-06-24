@@ -1,267 +1,162 @@
 import path from 'path'
 import fs from 'fs'
-import {
-  Error,
-  SendMessageParams,
-  UpdateFile,
-  UpdateMessageSendFailed,
-  UpdateNewCallbackQuery
-} from 'airgram'
 import * as ytdl from 'ytdl-core'
-import { getVideoUrlFromTextEntities } from '@lib/get-video-url-from-text-entities'
 import { downloadFile } from '@src/lib/download-file'
 import { checkFileSizeForTelegram } from '@lib/check-file-size'
-import { TELEGRAM_CHANNEL_ID } from '@lib/env'
-import { airgram, parseTextEntities } from './tg-api'
-import { events } from './handle-file-upload'
+import { env } from '@lib/env'
+import { createEffect, createEvent, sample } from 'effector'
+import {
+  answerCallbackQueryFx,
+  log,
+  notifyAdminFx,
+  updateMessageFactory
+} from './model/common'
+import { not, pending, reset } from 'patronum'
+import { botClient } from './tg-api'
+import { InputFile } from 'grammy'
 
-export const uploadVideo = async (
-  update: UpdateNewCallbackQuery
-): Promise<Error | void> => {
-  const { response: messageToUpdate } = await airgram.api.sendMessage({
-    chatId: update.chatId,
-    inputMessageContent: {
-      _: 'inputMessageText',
-      text: await parseTextEntities(`(1/3) Processing video...`)
-    }
-  })
+export const uploadVideo = createEvent<{
+  videoUrl: string
+  replyToMessageId: number
+  callbackQueryId: string
+  chatId: number
+}>()
 
-  if (messageToUpdate._ === 'error') {
-    return messageToUpdate
-  }
+const { $updateMessage, setUpdateMessage, updateMessage } =
+  updateMessageFactory()
 
-  const { response } = await airgram.api.getMessage({
-    chatId: update.chatId,
-    messageId: update.messageId
-  })
-
-  if (response._ === 'error') {
-    return response
-  }
-
-  const videoUrl = getVideoUrlFromTextEntities(response.content)
-
-  if (!videoUrl) {
-    await airgram.api.sendMessage({
-      chatId: update.chatId,
-      replyToMessageId: update.messageId,
-      inputMessageContent: {
-        _: 'inputMessageText',
-        text: await parseTextEntities(
-          `Unable to parse video id from this message :(`
-        )
-      }
+export const uploadVideoFx = createEffect(
+  async ({
+    videoUrl,
+    replyToMessageId
+  }: {
+    videoUrl: string
+    replyToMessageId: number
+  }) => {
+    const message = await notifyAdminFx({
+      chatId: env.ADMIN_ID,
+      text: '(1/3) Processing video...',
+      replyToMessageId
     })
-    return
-  }
-  const videoInfo = await ytdl.getInfo(videoUrl)
 
-  if (videoInfo.videoDetails.isLiveContent) {
-    return {
-      _: 'error',
-      code: 400,
-      message:
+    setUpdateMessage({
+      chatId: message.chat.id,
+      messageId: message.message_id
+    })
+
+    const videoInfo = await ytdl.getInfo(videoUrl)
+
+    if (videoInfo.videoDetails.isLiveContent) {
+      throw new Error(
         'This video is a live broadcast, live broadcasts does not support uploading to telegram!'
+      )
     }
-  }
 
-  const format = videoInfo.formats
-    .filter((q) => q.hasAudio && q.hasVideo)
-    .sort((q1, q2) => q1.width - q2.width)
-    .pop()
+    const format = videoInfo.formats
+      .filter((q) => q.hasAudio && q.hasVideo)
+      .sort((q1, q2) => q1.width - q2.width)
+      .pop()
 
-  const videoPath = path.join(
-    process.cwd(),
-    '.tmp',
-    `video-${videoInfo.videoDetails.videoId}.${format.container}`
-  )
+    const videoPath = path.join(
+      process.cwd(),
+      '.tmp',
+      `video-${videoInfo.videoDetails.videoId}.${format.container}`
+    )
 
-  await airgram.api.getChat({
-    chatId: messageToUpdate.chatId
-  })
+    await updateMessage(`(2/3) Downloading video...`)
 
-  await airgram.api.sendMessage({
-    chatId: update.chatId,
-    inputMessageContent: {
-      _: 'inputMessageText',
-      text: await parseTextEntities(`(2/3) Downloading video...`)
+    try {
+      await downloadFile(format.url, videoPath)
+    } catch (err) {
+      throw new Error(
+        `(2/3) Downloading video...\nError: ${err.message}\n\n${err.stack}`
+      )
     }
-  })
 
-  try {
-    console.log('(2/3) Downloading video...')
-    await downloadFile(format.url, videoPath)
-  } catch (e) {
-    await airgram.api.sendMessage({
-      chatId: update.chatId,
-      inputMessageContent: {
-        _: 'inputMessageText',
-        text: await parseTextEntities(
-          `Ooops!\nGot an error during downloading of the video: ${e}`
-        )
-      }
-    })
-    return
-  }
+    if (!(await checkFileSizeForTelegram(videoPath))) {
+      await updateMessage(
+        `Unfortunately, file size is bigger than 2GB, can't upload to Telegram.`
+      )
 
-  if (!(await checkFileSizeForTelegram(videoPath))) {
-    await airgram.api.sendMessage({
-      chatId: update.chatId,
-      inputMessageContent: {
-        _: 'inputMessageText',
-        text: await parseTextEntities(
-          `Unfortunately, file size is bigger than 2GB, can't upload to Telegram.`
-        )
-      }
-    })
-
-    return
-  }
-
-  const thumbnail = []
-    .concat(videoInfo.videoDetails.thumbnails.sort((a, b) => a.width - b.width))
-    .pop()
-  const thumbnailPath = path.join(
-    process.cwd(),
-    '.tmp',
-    `thumbnail-${videoInfo.videoDetails.videoId}.jpg`
-  )
-
-  try {
-    console.log('Downloading Thumbnail...')
-    await downloadFile(thumbnail.url, thumbnailPath)
-  } catch (e) {
-    await airgram.api.sendMessage({
-      chatId: update.chatId,
-      inputMessageContent: {
-        _: 'inputMessageText',
-        text: await parseTextEntities(
-          `Ooops!\nGot an error during downloading of the thumbnail of a video: ${e}`
-        )
-      }
-    })
-  }
-
-  await airgram.api.sendMessage({
-    chatId: update.chatId,
-    inputMessageContent: {
-      _: 'inputMessageText',
-      text: await parseTextEntities(`(3/3) Uploading video...`)
+      return
     }
-  })
 
-  const { response: getChatResponse } = await airgram.api.getChat({
-    chatId: parseInt(TELEGRAM_CHANNEL_ID)
-  })
+    const thumbnail = []
+      .concat(
+        videoInfo.videoDetails.thumbnails.sort((a, b) => a.width - b.width)
+      )
+      .pop()
+    const thumbnailPath = path.join(
+      process.cwd(),
+      '.tmp',
+      `thumbnail-${videoInfo.videoDetails.videoId}.jpg`
+    )
 
-  if (getChatResponse._ === 'error') {
-    return getChatResponse
-  }
+    try {
+      await downloadFile(thumbnail.url, thumbnailPath)
+    } catch (err) {
+      throw new Error(
+        `(2/3) Downloading thumbnail...\nError: ${err.message}\n\n${err.stack}`
+      )
+    }
 
-  const { id } = getChatResponse
+    await updateMessage(`(3/3) Uploading video...`)
 
-  const videoMessage: SendMessageParams = {
-    chatId: id,
-    inputMessageContent: {
-      _: 'inputMessageVideo',
-      video: {
-        _: 'inputFileLocal',
-        path: videoPath
-      },
-      thumbnail: {
-        _: 'inputThumbnail',
-        thumbnail: {
-          _: 'inputFileLocal',
-          path: thumbnailPath
+    const videoStream = fs.createReadStream(videoPath)
+
+    try {
+      await botClient.api.sendVideo(
+        env.TELEGRAM_CHANNEL_ID,
+        new InputFile(videoStream, path.basename(videoPath)),
+        {
+          caption: videoInfo.videoDetails.title,
+          thumbnail: new InputFile(thumbnailPath),
+          supports_streaming: true
         }
-      },
-      supportsStreaming: true,
-      caption: await parseTextEntities(videoInfo.videoDetails.title)
+      )
+    } catch (err) {
+      throw new Error(
+        `(3/3) Uploading video...\nError: ${err.message}\n\n${err.stack}`
+      )
     }
+
+    await updateMessage(`Done!`)
+
+    await fs.promises.rm(videoPath)
+    await fs.promises.rm(thumbnailPath)
+
+    console.log(`Video uploaded!`)
   }
+)
 
-  const { response: newVideoResponse } = await airgram.api.sendMessage(
-    videoMessage
-  )
+sample({
+  clock: uploadVideo,
+  filter: not(pending([uploadVideoFx])),
+  target: [
+    uploadVideoFx,
+    answerCallbackQueryFx.prepend(({ callbackQueryId }) => ({
+      callbackQueryId,
+      text: 'Uploading video...'
+    }))
+  ]
+})
 
-  if (newVideoResponse._ === 'error') {
-    return newVideoResponse
-  }
+sample({
+  clock: uploadVideo,
+  filter: pending([uploadVideoFx]),
+  target: answerCallbackQueryFx.prepend(({ callbackQueryId }) => ({
+    callbackQueryId,
+    text: 'Please wait, the previous video is still being processed...'
+  }))
+})
 
-  console.log('(3/3) Uploading video...')
+reset({
+  clock: uploadVideoFx.doneData,
+  target: $updateMessage
+})
 
-  try {
-    await new Promise<void>((resolve, reject) => {
-      let canSendUpdateMessage = true
-      const interval = setInterval(() => {
-        if (!canSendUpdateMessage) {
-          canSendUpdateMessage = true
-        }
-      }, 5000)
-
-      const onFileUpload = async (fileUpdate: UpdateFile) => {
-        if (!canSendUpdateMessage) {
-          return
-        }
-
-        canSendUpdateMessage = false
-
-        const {
-          remote: { uploadedSize },
-          expectedSize
-        } = fileUpdate.file
-        const uploadProgress = (uploadedSize / expectedSize) * 100
-
-        const msg = `Uploading ${uploadProgress.toFixed(2)}% ${path.basename(
-          fileUpdate.file.local.path
-        )}`
-
-        airgram.api.sendMessage({
-          chatId: update.chatId,
-          inputMessageContent: {
-            _: 'inputMessageText',
-            text: await parseTextEntities(msg)
-          }
-        })
-      }
-
-      events.on('uploadFile', onFileUpload)
-
-      events.once('videoUploaded', () => {
-        clearInterval(interval)
-        events.removeListener('uploadFile', onFileUpload)
-        resolve()
-      })
-      events.once('videoUploadFailed', (update) => {
-        clearInterval(interval)
-        events.removeListener('uploadFile', onFileUpload)
-        reject(update)
-      })
-    })
-  } catch (err) {
-    const { errorMessage } = err as UpdateMessageSendFailed
-    await airgram.api.sendMessage({
-      chatId: update.chatId,
-      inputMessageContent: {
-        _: 'inputMessageText',
-        text: await parseTextEntities(
-          `Error while uploading the video!\n\n${errorMessage}`
-        )
-      }
-    })
-    return
-  }
-
-  await airgram.api.sendMessage({
-    chatId: update.chatId,
-    inputMessageContent: {
-      _: 'inputMessageText',
-      text: await parseTextEntities(`Done!`)
-    }
-  })
-
-  await fs.promises.rm(videoPath)
-  await fs.promises.rm(thumbnailPath)
-
-  console.log(`Video uploaded!`)
-}
+sample({
+  clock: uploadVideoFx.failData,
+  fn: ({ message }) => message,
+  target: [updateMessage, log]
+})

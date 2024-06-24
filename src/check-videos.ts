@@ -1,6 +1,6 @@
 import { loadFeed } from '@lib/rss-parser'
 import { sendMessageToChannel } from '@src/send-message'
-import { NODE_ENV } from './lib/env'
+import { env } from '@src/lib/env'
 
 let items: string[] = []
 
@@ -11,7 +11,7 @@ export async function init(): Promise<void> {
     items.push(...feedItems.map(({ video: { id } }) => id))
   }
 
-  if (NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development') {
     await checkVideos()
   }
 }
