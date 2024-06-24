@@ -27,6 +27,7 @@
     "patronum": "^2.2.0",
     "rss-parser": "^3.13.0",
     "smol-request": "^2.1.2",
+    "source-map-support": "^0.5.21",
     "tsconfig-paths": "^4.2.0",
     "xml2js": "^0.6.2",
     "ytdl-core": "^4.11.5"
