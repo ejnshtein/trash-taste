@@ -1,7 +1,6 @@
 import 'module-alias/register'
 
-import { airgram } from './tg-api'
-import { toObject } from 'airgram'
+import { botClient } from './tg-api'
 import { scheduleJob } from 'node-schedule'
 
 import './handle-callback-query'
@@ -10,21 +9,40 @@ import { checkVideos, init } from '@src/check-videos'
 
 // eslint-disable-next-line no-void,prettier/prettier
 void async function main(): Promise<void> {
-  console.log(toObject(await airgram.api.getMe()))
+  console.log(await botClient.api.getMe())
 
   await init()
 
   scheduleJob('*/10 * * * *', () => checkVideos())
 
-  async function closeGracefully(signal: NodeJS.SignalsListener) {
-    console.log(`*^!@4=> Received signal to terminate: ${signal}`)
-
-    // await notifier.unsubscribe(YT_CHANNEL_ID)
-    await airgram.api.logOut()
-    process.exit(0)
+  // shut down server
+  async function shutdown() {
+    process.exit()
   }
-  process.on('SIGINT', closeGracefully)
-  process.on('SIGTERM', closeGracefully)
+
+  // quit on ctrl-c when running docker in terminal
+  process.on('SIGINT', function onSigint() {
+    console.info(
+      'Got SIGINT (aka ctrl-c in docker). Graceful shutdown ',
+      new Date().toISOString()
+    )
+    shutdown()
+  })
+
+  // quit properly on docker stop
+  process.on('SIGTERM', function onSigterm() {
+    console.info(
+      'Got SIGTERM (docker container stop). Graceful shutdown ',
+      new Date().toISOString()
+    )
+    shutdown()
+  })
+
+  botClient.catch((err) => {
+    console.error('Error:', err)
+  })
+
+  botClient.start()
 
   console.log('Ready!')
   // eslint-disable-next-line prettier/prettier

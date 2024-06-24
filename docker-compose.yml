@@ -1,11 +1,22 @@
-version: '3'
-
 services:
+  local-telegram-bot-api:
+    image: aiogram/telegram-bot-api:latest
+    env_file:
+      - .env
+    environment:
+      TELEGRAM_API_ID: ${TG_API_ID}
+      TELEGRAM_API_HASH: ${TG_API_HASH}
+    volumes:
+      - telegram-bot-api-data:/var/lib/telegram-bot-api
+    ports:
+      - 8081:8081
+
   app:
+    image: ejnshtein/trash-taste-bot:latest
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
+    restart: on-failure
     environment:
       NODE_ENV: production
     env_file:
@@ -13,8 +24,11 @@ services:
     networks:
       - default
     volumes:
-      - ./.tmp:/usr/src/app/.tmp
-    command: yarn start
+      - ./.tmp:/app/.tmp
+    command: pnpm start
+
+volumes:
+  telegram-bot-api-data:
 
 networks:
   default:

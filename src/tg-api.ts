@@ -1,25 +1,18 @@
-import { Airgram, Auth, FormattedText } from 'airgram'
-import path from 'path'
-import { TG_API_HASH, TG_API_ID } from './lib/env'
+import { Bot, GrammyError, HttpError } from 'grammy'
+import { env } from './lib/env'
 
-const tdlibAbsolutePath = path.join('/usr', 'local', 'lib', 'libtdjson.so')
-
-export const airgram = new Airgram({
-  apiId: parseInt(TG_API_ID),
-  apiHash: TG_API_HASH,
-  databaseDirectory: './tdl-db',
-  filesDirectory: './tdl-files',
-  logVerbosityLevel: 0,
-  enableStorageOptimizer: true,
-  command: tdlibAbsolutePath,
-  databaseEncryptionKey: Buffer.from(TG_API_HASH).toString('base64')
+export const botClient = new Bot(env.TOKEN, {
+  client: {
+    apiRoot: 'http://local-telegram-bot-api:8081'
+  }
 })
 
-airgram.use(
-  new Auth({
-    token: process.env.TOKEN
+if (env.NODE_ENV !== 'production') {
+  botClient.use((ctx, next) => {
+    console.log('Received:', ctx.update, env)
+    return next()
   })
-)
+}
 
 const cachedChatIds = new Map<string, number>()
 
@@ -29,30 +22,22 @@ export const getChatId = async (
   if (cachedChatIds.has(username)) {
     return cachedChatIds.get(username)
   }
-  const { response } = await airgram.api.searchPublicChat({
-    username
-  })
-  if (response._ === 'error') {
-    throw new Error('Channel not found')
+  let response: Awaited<ReturnType<typeof botClient.api.getChat>>
+  try {
+    response = await botClient.api.getChat(username)
+  } catch (e) {
+    if (e instanceof GrammyError) {
+      console.error('Error in request:', e.description)
+    } else if (e instanceof HttpError) {
+      console.error('Could not contact Telegram:', e)
+    } else {
+      console.error('Unknown error:', e)
+    }
+
+    throw new Error('Could not get chat id')
   }
 
   cachedChatIds.set(username, response.id)
 
   return response.id
-}
-
-export const parseTextEntities = async (
-  text: string
-): Promise<FormattedText> => {
-  const { response } = await airgram.api.parseTextEntities({
-    parseMode: {
-      _: 'textParseModeHTML'
-    },
-    text
-  })
-  if (response._ === 'error') {
-    throw new Error(response.message)
-  }
-
-  return response
 }

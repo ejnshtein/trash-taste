@@ -23,4 +23,5 @@ jobs:
         script: |
           cd bots/trash-taste
           git pull
-          sudo docker-compose -f docker-compose.yml up --build --force-recreate -d
+          sudo docker-compose -f docker-compose.yml pull
+          sudo docker-compose -f docker-compose.yml up --force-recreate -d

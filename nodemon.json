@@ -1,0 +1,12 @@
+{
+    "verbose": true,
+    "watch": [
+      "src",
+      "types"
+    ],
+    "ext": "ts,json",
+    "exec": "node --inspect=0.0.0.0:9229 --require ts-node/register --require tsconfig-paths/register --nolazy ./src/app.ts",
+    "delay": "300ms",
+    "signal": "SIGINT",
+    "noLazy": true
+}

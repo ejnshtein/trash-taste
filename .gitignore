@@ -2,5 +2,6 @@ node_modules
 dist
 *.env
 .tmp/*
+!.tmp/.gitkeep
 data
 .DS_Store

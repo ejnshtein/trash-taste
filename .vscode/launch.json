@@ -5,23 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "name": "Attach Server Debugger",
       "request": "attach",
-      "name": "Attach to Docker",
-      "preLaunchTask": "tsc-watch",
-      "protocol":"auto",
-      "port": 9222,
-      "restart": true,
-      "timeout": 2000,
-      "localRoot": "${workspaceFolder}/dist",
-      "sourceMaps": true,
-      "remoteRoot": "/usr/src/app/dist",
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
-      "skipFiles": [
-        "<node_internals>/**/*.js",
-      ]
+      "type": "node",
+      "port": 9229,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/app",
+      "timeout": 10000,
+      "restart": {
+        "delay": 2500,
+        "maxAttempts": 20
+      }
     }
   ]
 }

@@ -1,60 +1,47 @@
-import { Error, Message, toObject } from 'airgram'
 import { NewVideoNotified } from '../types'
-import { ADMIN_ID } from './lib/env'
-import { airgram, parseTextEntities } from './tg-api'
+import { env } from './lib/env'
+import { botClient } from './tg-api'
+import { Message } from 'grammy/types'
+
+const isError = (message: Message.TextMessage | Error): message is Error =>
+  message instanceof Error
 
 export const notifyAdmin = async (
   video: NewVideoNotified,
-  message: Message | Error
+  message: Message.TextMessage | Error
 ): Promise<void> => {
   let messageText = ''
 
-  if (message._ === 'error') {
-    messageText = `Got an error when trying to send message to the channel:\n${message.message}\n\n${message.code}`
+  if (isError(message)) {
+    messageText = `Got an error when trying to send message to the channel:\n${message.message}`
   } else {
     messageText = `New video published successfully!\n\n<a href="${video.video.link}"><b>${video.video.title}</b></a>\n\nDo you want to upload audio/video file?`
   }
 
-  const text = await parseTextEntities(messageText)
-  const { id } = toObject(
-    await airgram.api.getChat({
-      chatId: parseInt(ADMIN_ID)
-    })
-  )
-  const { response } = await airgram.api.sendMessage({
-    chatId: id,
-    inputMessageContent: {
-      _: 'inputMessageText',
-      text
-    },
-    replyMarkup: {
-      _: 'replyMarkupInlineKeyboard',
-      rows: [
-        [
-          {
-            _: 'inlineKeyboardButton',
-            text: 'Upload video',
-            type: {
-              _: 'inlineKeyboardButtonTypeCallback',
-              data: Buffer.from('uploadvideo').toString('base64')
+  try {
+    await botClient.api.sendMessage(env.ADMIN_ID, messageText, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: 'Upload video',
+              callback_data: Buffer.from('uploadvideo').toString('base64')
+            },
+            {
+              text: 'Upload audio',
+              callback_data: Buffer.from('uploadaudio').toString('base64')
             }
-          },
-          {
-            _: 'inlineKeyboardButton',
-            text: 'Upload audio',
-            type: {
-              _: 'inlineKeyboardButtonTypeCallback',
-              data: Buffer.from('uploadaudio').toString('base64')
-            }
-          }
+          ]
         ]
-      ]
+      }
+    })
+  } catch (e) {
+    if (e instanceof Error) {
+      console.log(
+        `Got an error trying to send message!\n\n${e.name}\n\n${e.message}`
+      )
     }
-  })
-
-  if (response._ === 'error') {
-    console.log(
-      `Got an error trying to send message!\n\n${response.code}\n\n${response.message}`
-    )
+    console.log(e)
   }
 }
