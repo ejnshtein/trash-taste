@@ -12,7 +12,13 @@ botClient
     const { callback_query: callbackQuery } = update
 
     if (callbackQuery.data) {
-      switch (Buffer.from(callbackQuery.data, 'base64').toString('utf-8')) {
+      const data =
+        /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/.test(
+          callbackQuery.data
+        )
+          ? Buffer.from(callbackQuery.data, 'base64').toString('utf-8')
+          : callbackQuery.data
+      switch (data) {
         case 'uploadvideo': {
           uploadVideo({
             chatId: ctx.chatId,
