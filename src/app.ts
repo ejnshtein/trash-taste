@@ -1,17 +1,28 @@
-import 'module-alias/register'
+import '@src/handle-callback-query'
+import '@src/commands'
 
 import { botClient } from './tg-api'
 import { scheduleJob } from 'node-schedule'
 
-import './handle-callback-query'
-import './commands'
 import { checkVideos, init } from '@src/check-videos'
 
 // eslint-disable-next-line no-void,prettier/prettier
 void async function main(): Promise<void> {
   console.log(await botClient.api.getMe())
 
-  await init()
+  await Promise.all([
+    init(),
+    botClient.api.setMyCommands([
+      {
+        command: 'uploadlastep',
+        description: 'Upload last episode'
+      },
+      {
+        command: 'cleanup',
+        description: 'Cleanup tmp folder'
+      }
+    ])
+  ])
 
   scheduleJob('*/10 * * * *', () => checkVideos())
 
@@ -36,10 +47,6 @@ void async function main(): Promise<void> {
       new Date().toISOString()
     )
     shutdown()
-  })
-
-  botClient.catch((err) => {
-    console.error('Error:', err)
   })
 
   botClient.start()

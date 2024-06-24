@@ -1,6 +1,6 @@
 import { loadFeed } from '@lib/rss-parser'
 import { sendMessageToChannel } from '@src/send-message'
-import { env } from './lib/env'
+import { env } from '@src/lib/env'
 
 let items: string[] = []
 

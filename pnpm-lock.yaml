@@ -29,6 +29,9 @@ importers:
       grammy:
         specifier: ^1.25.1
         version: 1.25.1
+      grammy-middlewares:
+        specifier: ^1.0.11
+        version: 1.0.11
       html-entities:
         specifier: ^2.5.2
         version: 2.5.2
@@ -132,6 +135,10 @@ packages:
   '@eslint/js@8.57.0':
     resolution: {integrity: sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@grammyjs/runner@1.0.4':
+    resolution: {integrity: sha512-77IE+2Gg0UHa9MNZ8wsculxJpzUDcHTrMg7OLbKoQ8jWKFxX78sdxRBwL+FK3NvHZ15YnXsnxesV43xgbOhteA==}
+    engines: {node: '>=12.20.0 || >=14.13.1'}
 
   '@grammyjs/types@3.9.0':
     resolution: {integrity: sha512-QzZAbz5COBZnDlDs6x94TIIIH5Pi7AMk0rJPM2O5JAz5Q+s7Xxp3lGg/pWyiVR9Q8euRDYCJmDtcRjwwFD6a3g==}
@@ -544,6 +551,10 @@ packages:
   entities@2.2.0:
     resolution: {integrity: sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==}
 
+  envalid@7.3.1:
+    resolution: {integrity: sha512-KL1YRwn8WcoF/Ty7t+yLLtZol01xr9ZJMTjzoGRM8NaSU+nQQjSWOQKKJhJP2P57bpdakJ9jbxqQX4fGTOicZg==}
+    engines: {node: '>=8.12'}
+
   envsafe@2.0.3:
     resolution: {integrity: sha512-51lek8h5btjXhXUDW//Pno7HPydM1WQzltOb1/ONRKdwB2QkfAURnN4Qn0cJ5LzGvX2Km1ReR2O3K3Bqq9sBMg==}
     engines: {node: '>=10'}
@@ -880,6 +891,9 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  grammy-middlewares@1.0.11:
+    resolution: {integrity: sha512-XASAQK25YOHoLKV0G1UEBH07oSc0nFIMltntyBV1BI5C2sEYKfcYkOp0xGt+SFT5EvLAbIHnyOy+riBnARKfhQ==}
 
   grammy@1.25.1:
     resolution: {integrity: sha512-5BnnWQGUMUwfwkBST6dMRR7A9PS95qXqBMvLeOuJOTfI0RaM7VJATCTrE5HTlnceFPz1L3mxTwNwEmDv3LK/3g==}
@@ -1635,6 +1649,9 @@ packages:
     resolution: {integrity: sha512-NoZ4roiN7LnbKn9QqE1amc9DJfzvZXxF4xDavcOWt1BPkdx+m+0gJuPM+S0vCe7zTJMYUP0R8pO2XMr+Y8oLIg==}
     engines: {node: '>=6'}
 
+  tslib@2.3.1:
+    resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
+
   tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
 
@@ -1799,6 +1816,10 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.0': {}
+
+  '@grammyjs/runner@1.0.4':
+    dependencies:
+      abort-controller: 3.0.0
 
   '@grammyjs/types@3.9.0': {}
 
@@ -2255,6 +2276,10 @@ snapshots:
   encodeurl@1.0.2: {}
 
   entities@2.2.0: {}
+
+  envalid@7.3.1:
+    dependencies:
+      tslib: 2.3.1
 
   envsafe@2.0.3: {}
 
@@ -2760,6 +2785,15 @@ snapshots:
       get-intrinsic: 1.2.4
 
   graceful-fs@4.2.11: {}
+
+  grammy-middlewares@1.0.11:
+    dependencies:
+      '@grammyjs/runner': 1.0.4
+      envalid: 7.3.1
+      grammy: 1.25.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
 
   grammy@1.25.1:
     dependencies:
@@ -3532,6 +3566,8 @@ snapshots:
       json5: 2.2.3
       minimist: 1.2.8
       strip-bom: 3.0.0
+
+  tslib@2.3.1: {}
 
   tslib@2.6.3: {}
 
