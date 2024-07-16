@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import * as ytdl from 'ytdl-core'
+import * as ytdl from '@distube/ytdl-core'
 import { downloadFile } from '@src/lib/download-file'
 import { checkFileSizeForTelegram } from '@lib/check-file-size'
 import { env } from '@lib/env'
