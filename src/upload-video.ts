@@ -120,7 +120,7 @@ export const uploadVideoFx = createEffect(
       )
     }
 
-    await updateMessage(`Done!`)
+    await updateMessage(`Video uploaded!`)
 
     await fs.promises.rm(videoPath)
     await fs.promises.rm(thumbnailPath)

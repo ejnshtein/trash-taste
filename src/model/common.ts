@@ -94,3 +94,5 @@ export const updateMessageFactory = () => {
 
   return { setUpdateMessage, $updateMessage, updateMessage }
 }
+
+export const cancelUpload = createEvent()

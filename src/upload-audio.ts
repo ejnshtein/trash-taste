@@ -6,11 +6,12 @@ import { encodeAudio } from './lib/encode-audio'
 import { env } from './lib/env'
 import { addAudioMetadata } from './lib/add-audio-metadata'
 import { botClient } from './tg-api'
-import { createEffect, createEvent, sample } from 'effector'
+import { createEffect, createEvent, createStore, sample } from 'effector'
 import { not, pending, reset } from 'patronum'
 import { InputFile } from 'grammy'
 import {
   answerCallbackQueryFx,
+  cancelUpload,
   log,
   notifyAdminFx,
   updateMessageFactory
@@ -23,16 +24,28 @@ export const uploadAudio = createEvent<{
   chatId: number
 }>()
 
+const createAbortUploadAudioFx = createEffect(() => new AbortController())
+const $abortUploadAudio = createStore<AbortController | null>(null).on(
+  createAbortUploadAudioFx.doneData,
+  (_, a) => a
+)
+
+const cancelUploadAudio = createEffect((a: AbortController) => {
+  a.abort()
+})
+
 const { $updateMessage, setUpdateMessage, updateMessage } =
   updateMessageFactory()
 
-const uploadAudioFx = createEffect(
+export const uploadAudioFx = createEffect(
   async ({
     videoUrl,
-    replyToMessageId
+    replyToMessageId,
+    abortController
   }: {
     videoUrl: string
     replyToMessageId: number
+    abortController: AbortController
   }) => {
     const message = await notifyAdminFx({
       chatId: env.ADMIN_ID,
@@ -113,7 +126,7 @@ const uploadAudioFx = createEffect(
       throw new Error(`(5/5) Uploading audio...\nError: ${e.message}`)
     }
 
-    await updateMessage(`Done!`)
+    await updateMessage(`Audio uploaded!`)
 
     await fs.promises.rm(audioMP3path)
     await fs.promises.rm(audioPath)
@@ -122,7 +135,12 @@ const uploadAudioFx = createEffect(
 
 sample({
   clock: uploadAudio,
+  source: $abortUploadAudio,
   filter: not(pending([uploadAudioFx])),
+  fn: (abortController, params) => ({
+    ...params,
+    abortController
+  }),
   target: [
     uploadAudioFx,
     answerCallbackQueryFx.prepend(({ callbackQueryId }) => ({
@@ -151,3 +169,10 @@ sample({
   fn: ({ message }) => message,
   target: [updateMessage, log]
 })
+
+// sample(
+//   cancelUpload,
+//   uploadAudioFx.pending,
+//   $abortUploadAudio,
+//   (a, b, c) => ({})
+// )

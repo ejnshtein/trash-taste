@@ -4,6 +4,7 @@ import { botClient } from '@src/tg-api'
 import { uploadAudio } from '@src/upload-audio'
 import { uploadVideo } from '@src/upload-video'
 import { env } from '@src/lib/env'
+import { uploadBoth } from './upload-both'
 
 botClient
   .use(onlySuperAdmin(env.ADMIN_ID))
@@ -30,6 +31,15 @@ botClient
         }
         case 'uploadaudio': {
           uploadAudio({
+            chatId: ctx.chatId,
+            replyToMessageId: callbackQuery.message.message_id,
+            callbackQueryId: callbackQuery.id,
+            videoUrl: getVideoUrlFromTextEntities(callbackQuery.message)
+          })
+          break
+        }
+        case 'uploadboth': {
+          uploadBoth({
             chatId: ctx.chatId,
             replyToMessageId: callbackQuery.message.message_id,
             callbackQueryId: callbackQuery.id,
