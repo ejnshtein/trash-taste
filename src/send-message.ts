@@ -12,7 +12,8 @@ export const sendMessageToChannel = async (
     {
       parse_mode: 'HTML',
       link_preview_options: {
-        is_disabled: true
+        is_disabled: false,
+        url: `https://youtu.be/${video.video.id}`
       }
     }
   )
