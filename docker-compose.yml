@@ -25,7 +25,6 @@ services:
       - default
     volumes:
       - ./.tmp:/app/.tmp
-    command: pnpm start
 
 volumes:
   telegram-bot-api-data:

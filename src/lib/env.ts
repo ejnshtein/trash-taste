@@ -8,5 +8,8 @@ export const env = envsafe({
   TOKEN: str(),
   ADMIN_ID: num(),
   YT_CHANNEL_ID: str(),
-  TELEGRAM_CHANNEL_ID: num()
+  TELEGRAM_CHANNEL_ID: num(),
+  TELEGRAM_BOT_API: str({
+    devDefault: 'http://local-telegram-bot-api:8081'
+  })
 })

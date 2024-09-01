@@ -3,7 +3,7 @@ import { env } from './lib/env'
 
 export const botClient = new Bot(env.TOKEN, {
   client: {
-    apiRoot: 'http://local-telegram-bot-api:8081'
+    apiRoot: env.TELEGRAM_BOT_API
   }
 })
 
