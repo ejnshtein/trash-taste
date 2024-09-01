@@ -2,16 +2,15 @@ import '@src/handle-callback-query'
 import '@src/commands'
 
 import { botClient } from './tg-api'
-import { scheduleJob } from 'node-schedule'
+// import { scheduleJob } from 'node-schedule'
 
-import { checkVideos, init } from '@src/check-videos'
+// import { checkVideos, init } from '@src/check-videos'
 
 // eslint-disable-next-line no-void,prettier/prettier
 void async function main(): Promise<void> {
   console.log(await botClient.api.getMe())
 
   await Promise.all([
-    init(),
     botClient.api.setMyCommands([
       {
         command: 'uploadlastep',
@@ -24,7 +23,7 @@ void async function main(): Promise<void> {
     ])
   ])
 
-  scheduleJob('*/10 * * * *', () => checkVideos())
+  // scheduleJob('*/10 * * * *', () => checkVideos())
 
   // shut down server
   async function shutdown() {
