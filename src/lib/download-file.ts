@@ -5,7 +5,7 @@ export const downloadFile = async (
   filePath: string
 ): Promise<void> => {
   await new EasyDl(url, filePath, {
-    connections: 10,
+    connections: 5,
     maxRetry: 5,
     existBehavior: 'overwrite'
   }).wait()
