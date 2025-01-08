@@ -1,9 +1,21 @@
 import { Bot } from 'grammy'
 import { env } from './lib/env'
 
+const buildUrlWithLogger = (
+  root: string,
+  token: string,
+  method: string,
+  env: "prod" | "test",
+) => {
+  console.log({ root, token, method, env });
+  const prefix = env === "test" ? "test/" : "";
+  return `${root}/bot${token}/${prefix}${method}`;
+};
+
 export const botClient = new Bot(env.TOKEN, {
   client: {
-    apiRoot: env.TELEGRAM_BOT_API
+    apiRoot: env.TELEGRAM_BOT_API,
+    buildUrl: buildUrlWithLogger
   }
 })
 
