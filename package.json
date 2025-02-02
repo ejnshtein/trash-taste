@@ -14,7 +14,7 @@
     "lint:fix": "eslint ./src --ext .ts --fix"
   },
   "dependencies": {
-    "@distube/ytdl-core": "^4.15.8",
+    "@distube/ytdl-core": "^4.16.0",
     "easydl": "^1.2.0",
     "effector": "^23.2.2",
     "envsafe": "^2.0.3",

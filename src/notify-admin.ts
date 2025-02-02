@@ -32,6 +32,14 @@ export const notifyAdmin = async (
               text: 'Upload audio',
               callback_data: Buffer.from('uploadaudio').toString('base64')
             }
+          ],
+          [
+            {
+              text: 'Upload vide and audio',
+              callback_data: Buffer.from('uploadvideoandaudio').toString(
+                'base64'
+              )
+            }
           ]
         ]
       }
